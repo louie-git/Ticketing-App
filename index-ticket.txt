@@ -1,0 +1,39 @@
+<template>
+  <div class="w-full mt-2 pb-3 px-1.5">
+    <p class="text-3xl text-center font-bold">Tickets</p>
+    <div class="flex shadow-md justify-between w-64 mx-auto mt-4 px-2 rounded-md" >
+      <input class="outline-none" type="text" placeholder="Search...">
+      <img class="w-6 h-6" src="~assets/icons/magnifying-glass.png" alt="">
+    </div>
+    <div class="  grid grid-cols-2 gap-1 text-center  text-sm">
+      <div class="btn text-blue-950 bg-blue-200">All</div>
+      <div class="btn text-green-950 bg-green-200">Completed</div>
+      <div class="btn text-yellow-950 bg-yellow-200">Ongoing</div>
+      <div class="btn text-red-950 bg-red-200">Pending</div>
+    </div>
+    <div class="flex justify-around">
+      <div class="btn flex gap-2">
+        <p>Export CSV</p>
+        <img class="w-6 h-6" src="~assets/icons/export-csv.png" alt="">
+      </div>
+      <div class="btn flex gap-2">
+        <p>Export PDF</p>
+        <img class="w-6 h-6" src="~assets/icons/export-pdf.png" alt="">
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 px-3">
+    <TicketCards/>
+  </div>
+</template>
+
+<script setup>
+import TicketCards from '~/components/TicketCards.vue';
+
+
+
+</script>
+
+<style scoped>
+
+</style>
