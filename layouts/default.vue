@@ -124,10 +124,10 @@ const sidebarMenus = ref([
 
 
 const router = useRouter()
-
+console.log(router.currentRoute.value.name)
 
 sidebarMenus.value = sidebarMenus.value.map((menu)=> {
-  menu.link === router.currentRoute.value.href ? menu.isActive = true : menu.isActive = false
+  menu.link === router.currentRoute.value.path ? menu.isActive = true : menu.isActive = false
   return menu
 })
 

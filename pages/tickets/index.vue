@@ -14,19 +14,22 @@
       <div class=" flex flex-col  tablet:flex-row gap-3">
         <div class="flex-col flex items-center tablet:block">
           <p class="font-semibold">Status</p>
-          <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
+          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"></DropdownMenu>
+
+          <!-- <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
             <option value="">Completed</option>
             <option value="">Pending</option>
             <option value="">In-progress</option>
-          </select>
+          </select> -->
         </div>
         <div class="flex-col flex items-center tablet:block">
           <p class="font-semibold">Priority</p>
-          <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
+          <!-- <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
             <option value="">Low</option>
             <option value="">Medium</option>
             <option value="">High</option>
-          </select>
+          </select> -->
+          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"></DropdownMenu>
         </div>
       </div>
       
@@ -67,7 +70,7 @@
             tablet:w-9 tablet:h-8
             laptop:w-10 laptop:h-9 border-slate-300
             disabled:cursor-not-allowed disabled:bg-white disabled:text-black" 
-            :class="numCurrentPage === index + 1 && 'bg-indigo-500 text-white hover:opacity-80'" 
+            :class="numCurrentPage === index + 1 && 'bg-indigo-600 text-white hover:opacity-80'" 
             v-if="index + 1 <= numPaginationLimit"
             @click="fnPaginationClick(page)" :disabled="blnLoading && numCurrentPage !==index + 1">
               <p  class="m-auto" >{{ page + numPageCursor }}</p>
@@ -94,7 +97,7 @@
     </div>
 
     <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess"  @closeNotif="()=> blnShowNotif = false"></Notification>
-    <DropdownMenu></DropdownMenu>
+
 
     
 
@@ -119,7 +122,12 @@ const numCurrentPage = ref(1)
 const numPageLimit = ref(5)
 const numPageCursor = ref(0)
 const numPaginationLimit = ref(5)
+const arrStatusMenu = ref(['Completed', 'Pending', 'In-progress',])
+const arrPriorityMenu = ref(['Low', 'Meduim', 'High'])
+const strStatusFilter = ref('')
+const strPriorityFilter = ref('')
 
+//Pagination functions
 const fnPaginationNext = () => {
   let limit = Math.ceil(numTotalTickets.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalTickets.value/numPageLimit.value)
   numPaginationLimit.value = limit
@@ -168,6 +176,19 @@ const fnPaginationSkip = (value) => {
 }
 
 
+//Set Filter Function
+const fnSetStatus = (status) => {
+  strStatusFilter.value = status
+  fnFetchData()
+}
+
+const fnSetPriority = (priority) => {
+  strPriorityFilter.value = priority
+  fnFetchData()
+}
+
+
+//Fetch Data
 const fnFetchData = async() => {
   
   let page = numCurrentPage.value + numPageCursor.value
@@ -176,7 +197,9 @@ const fnFetchData = async() => {
     path: '/tickets',
     query: {
       page: numCurrentPage.value + numPageCursor.value,
-      limit: 10
+      limit: 10,
+      status: strStatusFilter.value ? strStatusFilter.value : 'All',
+      priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
     }
   })
 
