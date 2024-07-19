@@ -1,13 +1,15 @@
 
 
-const getFetch = async (url) => {
+const getFetch = async (url, queries = {}) => {
 
-
+  let queryString = ''
+  if(queries) queryString = Object.entries(queries).map(query => `${query[0]}=${query[1]}`).join('&')
+  
   let message = ''
   let response_error = {}
   let data 
   try {
-    data = await $fetch(url)
+    data = await $fetch(`${url}?${queryString}`)
     message = 'Request Success'
   } catch (error) {
     console.log(error)

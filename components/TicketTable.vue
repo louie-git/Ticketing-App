@@ -62,8 +62,8 @@
       <Loading class="bg-slate-50 rounded-lg px-6 py-4" v-if="blnLoading"></Loading>
     </div> -->
 
-    <div class="absolute w-full  top-0  text-center bg-black/10 h-full flex justify-center items-center rounded-lg" v-if="blnLoading">
-      <Loading class="bg-slate-50 rounded-lg px-6 py-4 z-20"></Loading>
+    <div class="absolute w-full  top-0 text-center bg-black/10 h-full flex justify-center items-center rounded-lg" v-if="blnLoading">
+      <Loading class="bg-slate-50 rounded-lg px-6 py-4"></Loading>
     </div>
 
     <div v-if="!arrTickets && !blnLoading" class="text-center">

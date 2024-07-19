@@ -10,8 +10,8 @@
         </div>
       </NuxtLink>
       <div class="tablet:hidden">
-        <font-awesome v-if="!showMenu" :icon="'bars'" class="text-2xl" @click="toggleMenu()" />
-        <font-awesome v-else :icon="'xmark'" class="text-3xl" @click="toggleMenu()" />
+        <font-awesome v-if="!showMenu" :icon="'bars'" class="text-2xl cursor-pointer" @click="toggleMenu()" />
+        <font-awesome v-else :icon="'xmark'" class="text-3xl cursor-pointer" @click="toggleMenu()" />
         <!-- <img class="w-8"  v-if="!showMenu" src="~assets/icons/burger-bar.png" alt="" @click="toggleMenu()">
         <img class="w-6 " v-else src="~assets/icons/close.png" alt="" @click="toggleMenu()"> -->
       </div>
@@ -40,10 +40,10 @@
             </div>
           </div>
           <div class="flex flex-col gap-y-5 tablet:align-middle mt-10">
-            <NuxtLink :to="menu.link" v-for="(menu, index) in sidebarMenus"
+            <NuxtLink :to="menu.link" v-for="(menu, index) in sidebarMenus" 
               class=" font-semibold  px-2  rounded-md duration-200 transition-all ease-in-out"
               :class="menu.isActive? 'bg-indigo-950 text-indigo-50': 'hover:bg-indigo-200'"
-              @click="activeMenu(index)">
+              @click="activeMenu(index), toggleMenu()">
               <div class="flex gap-3 py-2 items-center">
                 <!-- <img class="w-5 h-5" :src="`/_nuxt/assets/icons/${menu.icon}`" alt="">  -->
                 <font-awesome :icon="`${menu.icon}`" class="text-xl w-10" />
@@ -142,11 +142,15 @@ const activeMenu = (index) => {
   })
 }
 
-const toggleMenu = () => {
+window.onresize = () => {
   if (window.screen.width < 768) {
-    console.log(showMenu.value)
-    showMenu.value = !showMenu.value
+    showMenu.value = false
   }
+}
+
+const toggleMenu = () => {
+  console.log('here')
+  showMenu.value = !showMenu.value
 }
 
 

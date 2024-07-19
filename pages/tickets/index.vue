@@ -14,7 +14,7 @@
       <div class=" flex flex-col  tablet:flex-row gap-3">
         <div class="flex-col flex items-center tablet:block">
           <p class="font-semibold">Status</p>
-          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"></DropdownMenu>
+          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus" :current-filter="strStatusFilter"></DropdownMenu>
 
           <!-- <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
             <option value="">Completed</option>
@@ -29,7 +29,7 @@
             <option value="">Medium</option>
             <option value="">High</option>
           </select> -->
-          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"></DropdownMenu>
+          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="strPriorityFilter"></DropdownMenu>
         </div>
       </div>
       
@@ -53,7 +53,7 @@
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 rounded-tl-md rounded-bl-md border-slate-300
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationSkip('first')" :disabled="blnLoading || numCurrentPage === 1">
+        @click="fnPaginationSkip('first')" :disabled="blnLoading || (numCurrentPage + numPageCursor) === 1">
           <font-awesome :icon="'angles-left'" class="m-auto text-xs" />
         </button>
 
@@ -61,7 +61,7 @@
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 border-slate-300
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationPrev" :disabled="blnLoading || numCurrentPage === 1">
+        @click="fnPaginationPrev" :disabled="blnLoading || (numCurrentPage + numPageCursor) === 1">
           <font-awesome :icon="'angle-left'" class="m-auto text-xs" />
         </button>
 
@@ -122,8 +122,8 @@ const numCurrentPage = ref(1)
 const numPageLimit = ref(5)
 const numPageCursor = ref(0)
 const numPaginationLimit = ref(5)
-const arrStatusMenu = ref(['Completed', 'Pending', 'In-progress',])
-const arrPriorityMenu = ref(['Low', 'Meduim', 'High'])
+const arrStatusMenu = ref([])
+const arrPriorityMenu = ref([])
 const strStatusFilter = ref('')
 const strPriorityFilter = ref('')
 
@@ -191,22 +191,21 @@ const fnSetPriority = (priority) => {
 //Fetch Data
 const fnFetchData = async() => {
   
-  let page = numCurrentPage.value + numPageCursor.value
+  const query = {
+    page: numCurrentPage.value + numPageCursor.value,
+    status: strStatusFilter.value ? strStatusFilter.value : 'All',
+    priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
+  }
 
   navigateTo({
     path: '/tickets',
-    query: {
-      page: numCurrentPage.value + numPageCursor.value,
-      limit: 10,
-      status: strStatusFilter.value ? strStatusFilter.value : 'All',
-      priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
-    }
+    query
   })
 
   console.log('request', numCurrentPage.value + numPageCursor.value)
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets?page=${page}`)
+  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets`,query)
   console.log(data, message, response_error)
   console.log(!data)
   if(!data) {
@@ -216,45 +215,45 @@ const fnFetchData = async() => {
     blnRequestSuccess.value = false
     return
   }
-  arrTickets.value = data.tickets
-  numTotalTickets.value = data.total_tickets
+  arrTickets.value = data
   blnLoading.value = false
 }
 
-const fnSetCurrentPage = () => {
-  console.log('this is route',route.query)
-  numPageCursor.value = route.query.page > 5 ? Math.ceil(route.query.page/numPageLimit.value) - numPageLimit.value  : 0
-  numCurrentPage.value = route.query.page ? (parseInt(route.query.page) - numPageCursor.value) : 1
-  console.log(numCurrentPage.value, numPageCursor.value)
-  
+
+const fnSetPageQuery = () => {
+  numPageCursor.value = route.query.page > 5 ? Math.ceil(numTotalTickets.value/numPageLimit.value) - numPageLimit.value  : 0
+  numCurrentPage.value = route.query.page ? (parseInt(route.query.page) - numPageCursor.value ) : 1
+  strStatusFilter.value = route.query.status ?  route.query.status : 'All'
+  strPriorityFilter.value = route.query.priority ? route.query.priority : 'All'
+  if(numPageCursor.value + numCurrentPage.value > Math.ceil(numTotalTickets.value/numPageLimit.value)){
+    numPageCursor.value = 0
+     numCurrentPage.value = 1
+  }
+  fnFetchData()
+}
+
+const fnFetchTotalTickets = async() => {
+  const { data } = await getFetch(`${config.public.server_url}/api/tickets/total`)
+  numTotalTickets.value = data
+}
+
+const fnFetchStatus = async() => {
+  const { data } = await getFetch(`${config.public.server_url}/api/status`)
+  arrStatusMenu.value = data
+}
+
+const fnFetchPriorities = async() => {
+  const { data } = await getFetch(`${config.public.server_url}/api/priorities`)
+  arrPriorityMenu.value = data
 }
 
 
 onMounted( async () => {
-
-  fnSetCurrentPage()
-
-
-
-  blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets?page=${numCurrentPage.value}`)
-  console.log(data, message, response_error)
-  console.log(!data)
-  if(!data) {
-    console.log('e')
-    blnShowNotif.value = true
-    blnLoading.value = false
-    strNotifMessage.value = message
-    blnRequestSuccess.value = false
-    return
-  }
-  arrTickets.value = data.tickets
-  numTotalTickets.value = data.total_tickets
-  blnLoading.value = false
-
+  await fnFetchPriorities()
+  await fnFetchStatus()
+  await fnFetchTotalTickets()
+  fnSetPageQuery()
 })
-
-
 
 
 

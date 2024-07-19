@@ -22,7 +22,8 @@ export default defineNuxtConfig({
         'clipboard-list', 'magnifying-glass', 
         'download', 'arrow-left', 
         'paper-plane', 'eye', 
-        'gears', 'angle-left', 'angle-right', 'angles-left', 'angles-right', 'angle-down'
+        'gears', 'angle-left', 'angle-right', 'angles-left', 'angles-right', 'angle-down',
+        'plus','pencil', 'user'
       ],
       regular: ['comment', 'face-smile'],
       brands: ['twitter'],
