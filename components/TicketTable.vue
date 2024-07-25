@@ -21,7 +21,7 @@
 
         <tr class="border-b text-start h-9 align-middle tablet:h-10 laptop:h-12" v-for="(ticket, index) in arrTickets">
 
-          <td class="pl-5 cursor-pointer text-purple-800 font-semibold  ">
+          <td class="pl-5 cursor-pointer text-indigo-800 font-semibold  ">
             <!-- <NuxtLink to="../tickets/1">{{ ticket.ticket_number }}</NuxtLink> -->
             <NuxtLink :to="`../tickets/${ticket.ticket_number}`">{{ ticket.ticket_number }}</NuxtLink>
           </td>

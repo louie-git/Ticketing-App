@@ -26,16 +26,16 @@
 
         <div class="flex gap-2 my-2">
           <p class="font-bold">Status: </p>
-          <p class="px-2 rounded-md font-semibold">{{ objTicket.status ? arrStatusMenu[objTicket.status - 1].name : '--' }} {{  }}</p>
-          <div class="relative">
+          <p class="px-2 rounded-md font-semibold">{{ fnDisplayStatus(strTicketStatus) }}</p>
+          <div class="relative" v-if="blnShowEditOpt">
             <button>
               <font-awesome :icon="'pencil'" class="border p-0.5 rounded text-xs border-slate-400 text-slate-500 cursor-pointer" @click="fnToggleStatusOpt"/>
             </button>
-            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowStatus" >
+            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowStatusOpt" >
               <div class=" w-28 px-2 py-1 transition-colors duration-300 cursor-pointer" 
-              :class="objTicket.status === menu.item_id ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
+              :class="strTicketStatus === menu.item_id ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
               v-for="(menu,index) in arrStatusMenu" 
-              @click="() => objTicket.status = menu.item_id">
+              @click="fnSetStatus(menu.item_id)">
                 <p>{{ menu.name }}</p>
               </div>
             </div>
@@ -43,16 +43,16 @@
         </div>
         <div class="flex gap-2 my-2">
           <p class="font-bold">Priority: </p>
-          <p class="px-2 rounded-md font-semibold">{{ objTicket.priority ? objTicket.priority : '--'}}</p>
-          <div class="relative">
+          <p class="px-2 rounded-md font-semibold">{{ fnDisplayPriority(strTicketPriority) }}</p>
+          <div class="relative" v-if="blnShowEditOpt">
             <button>
               <font-awesome :icon="'pencil'" class="border p-0.5 rounded text-xs border-slate-400 text-slate-500 cursor-pointer" @click="fnTogglePriorityOpt"/>
             </button>
-            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowPriority" >
+            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowPriorityOpt" >
               <div class=" w-28 px-2 py-1  transition-colors duration-300 cursor-pointer" 
-              :class="numActivePriority === index ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
+              :class="strTicketPriority === menu.item_id ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
               v-for="(menu,index) in arrPriorityMenu" 
-              @click="() => numActivePriority = index">
+              @click="fnSetPriority(menu.item_id)">
                 <p>{{ menu.name }}</p>
               </div>
             </div>
@@ -63,14 +63,14 @@
           <p>{{ objTicket.description }}</p>
         </div>
 
-        <div class="my-3">
+        <div class="my-3" >
           <div class="flex gap-3">
             <p class="font-bold">Assignee</p>
-            <button> 
+            <button v-if="blnShowEditOpt"> 
               <font-awesome :icon="'plus'" class="border p-0.5 rounded text-sm border-slate-400 text-slate-500 cursor-pointer" @click="fnToggleDevNamesOpt"/>
             </button>
           </div>
-          <div class="flex flex-wrap w-full bg-white  rounded-md text-sm overflow-y-auto transition-all duration-300"  :class=" blnShowDevelopers ? ' h-36 p-2 border': 'h-0 p-0 border-none' ">
+          <div  class="flex flex-wrap w-full bg-white  rounded-md text-sm overflow-y-auto transition-all duration-300"  :class=" blnShowDevelopers ? ' h-36 p-2 border': 'h-0 p-0 border-none' " v-if="blnShowEditOpt">
             <div v-for="dev in arrDevNames" 
             class="px-2 py-1 cursor-pointer border border-white w-1/2 rounded-md h-8"
             :class="fnCheckId(dev._id) ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
@@ -117,9 +117,12 @@
         </div>
 
         <div class="mt-4">
-          <div class="flex gap-2 justify-end">
-            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85">Cancel</button>
+          <div class="flex gap-2 justify-end"  v-if="blnShowEditOpt">
+            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85"  @click="fnCancelEdit">Cancel</button>
             <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85">Save</button>
+          </div>
+          <div class="flex gap-2 justify-end" v-else>
+            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85" @click="() => blnShowEditOpt = true">Edit</button>
           </div>
         </div>
 
@@ -183,55 +186,58 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const objTicket = ref({submitted_by: {}})
 const blnLoading = ref(false)
+const strTicketStatus = ref()
+const strTicketPriority = ref()
 
 const arrStatusMenu = ref([])
 const arrPriorityMenu = ref([])
 
 const arrDevNames = ref()
-const arrNewDevObj = ref([])
 const arrNewAssignedDevID = ref()
 
-const blnShowStatus = ref(false)
-const blnShowPriority = ref(false)
+const blnShowStatusOpt = ref(false)
+const blnShowPriorityOpt = ref(false)
 const blnShowDevelopers = ref(false)
+const blnShowEditOpt = ref(false)
 
 const numActiveStatus = ref()
 const numActivePriority = ref()
 
 const strStatus = ref('')
 
-const arrAssignedDev = ref([
-  {
-    _id: "668bd0c28a525beeaf38c760",
-    first_name: 'Vincent Louie',
-    last_name: 'Arrabis',
-    email: 'vincentla@meditab.com'
-  }
-])
+const arrAssignedDev = ref([])
 
 
 console.log(router.currentRoute.value.params.id)
 
-const fnToggleStatusOpt = () =>  blnShowStatus.value = !blnShowStatus.value
+const fnToggleStatusOpt = () =>  blnShowStatusOpt.value = !blnShowStatusOpt.value
 
-const fnTogglePriorityOpt = () =>  blnShowPriority.value = !blnShowPriority.value
+const fnTogglePriorityOpt = () =>  blnShowPriorityOpt.value = !blnShowPriorityOpt.value
 
 const fnToggleDevNamesOpt = () => blnShowDevelopers.value = !blnShowDevelopers.value
+
+const fnSetStatus = (id) => {
+  blnShowStatusOpt.value = false
+  strTicketStatus.value = id
+} 
+
+const fnSetPriority = (id) => {
+  blnShowPriorityOpt.value = false
+  strTicketPriority.value = id
+}
 
 const fnAssignDev = (dev) => {
 
   if ( arrNewAssignedDevID.value.includes(dev._id) ){
     const index = arrNewAssignedDevID.value.indexOf(dev._id)
     arrNewAssignedDevID.value.splice(index,1)
-    arrNewDevObj.value = arrNewDevObj.value.filter(names => names._id != dev._id)
     arrAssignedDev.value = arrAssignedDev.value.filter(names => names._id != dev._id)
     return
   }
   arrNewAssignedDevID.value.push(dev._id)
-  arrNewDevObj.value.push(dev)
   arrAssignedDev.value.push(dev)
-  console.log(arrNewDevObj.value)
 }
+
 
 
 const fnCheckId = (id) => {
@@ -239,9 +245,38 @@ const fnCheckId = (id) => {
   return assignedDevId.includes(id) ? true : false
 }
 
+const fnDisplayStatus = (status_id) => {
+  let text = '--'
+  arrStatusMenu.value.forEach((status) => {
+    if(status.item_id === status_id) {
+      text = status.name
+    }
+  })
+  return text
+}
+
+const fnDisplayPriority = (priority_id) => {
+  let text = '--'
+  arrPriorityMenu.value.forEach((priority) => {
+    if(priority.item_id === priority_id) {
+      text = priority.name
+    }
+  })
+  return text
+}
+
+const fnCancelEdit = () => {47
+  blnShowEditOpt.value = false
+  strTicketPriority.value = objTicket.value.priority
+  strTicketStatus.value = objTicket.value.status
+  arrAssignedDev.value = [...objTicket.value.assigned_devs]
+}
 
 
 
+
+
+// Fetch Functions
 const fnFetchStatus = async() => {
   const { data } = await getFetch(`${config.public.server_url}/api/status`)
   arrStatusMenu.value = data
@@ -259,20 +294,30 @@ const fetchUserData = async () => {
 }
 
 onMounted(async () => {
-
+  console.log('run heree')
 
   blnLoading.value = true
   const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets/${router.currentRoute.value.params.id}`)
   if(response_error.status) {
-    console.log('e')
+    console.log('error')
     blnShowNotif.value = true
     blnLoading.value = false
     strNotifMessage.value = message
   }
-  objTicket.value = data
-  blnLoading.value = false
+  data.assigned_devs =  [ {
+    _id: "668bd0c28a525beeaf38c760",
+    first_name: 'Vincent Louie',
+    last_name: 'Arrabis',
+    email: 'vincentla@meditab.com'
+  } ]
 
-   arrNewAssignedDevID.value = arrAssignedDev.value.map(dev => dev._id)
+  console.log(data.assigned_devs)
+  objTicket.value = {...data}
+  strTicketStatus.value = data.status
+  strTicketPriority.value = data.priority
+  arrAssignedDev.value = [...data.assigned_devs]
+  blnLoading.value = false
+  arrNewAssignedDevID.value = arrAssignedDev.value.map(dev => dev._id)
    
   await fnFetchStatus()
   await fnFetchPriorities()
