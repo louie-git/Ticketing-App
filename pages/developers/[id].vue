@@ -1,6 +1,6 @@
 <template>
 
-  <PageTitle page-title="vincentla@meditab.com" :ret-btn="true"/>
+  <PageTitle :page-title="objDeveloper.email" :ret-btn="true"/>
   <div class="mx-auto my-5 text-te-700 ">
     
     <div class="laptop:flex laptop:gap-x-10 items-start border-b pb-4">
@@ -9,8 +9,8 @@
           <img class="h-full w-full object-cover rounded-full" src="~assets/images/cat3.jpg" alt="">
         </div>
         <div class="text-center">
-          <p class="font-bold">Vincent Louie Arrabis</p>
-          <p class="text-sm">vincentla@meditab.com</p>
+          <p class="font-bold">{{ objDeveloper.full_name }}</p>
+          <p class="text-sm">{{ objDeveloper.email }}</p>
         </div>
       </div>
       <div class="flex flex-wrap justify-center gap-1 mt-4 tablet:gap-x-4 tablet:justify-normal tablet:mt-5 laptop:mt-0 ">
@@ -29,33 +29,93 @@
       </div>
     </div>
     <div class='mt-3'>
-      <div class="mb-3 py-2 px-2 rounded-md text-slate-800 flex flex-col  tablet:flex-row gap-5 bg-purple-50 shadow-md">
+      <div class="mb-3 py-2 px-2 rounded-md text-slate-800 flex flex-col  tablet:flex-row gap-5 bg-indigo-50 shadow-md">
+
         <div class="flex-col flex items-center tablet:block">
           <p>Status</p>
-          <select class="outline-none w-4/5 py-1 px-2 font-semibold border rounded-md tablet:w-52" name="" id="status">
-            <option value="">COMPLETED</option>
-            <option value="">PENDING</option>
-            <option value="">IN-PROGRESS</option>
-          </select>
+          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"  :current-filter="strStatusFilter"></DropdownMenu>
+          <!-- <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"></DropdownMenu> -->
+
+
+
         </div>
         <div class="flex-col flex items-center tablet:block">
           <p>Priority</p>
-          <select class="outline-none w-4/5 py-1 px-2 font-semibold border rounded-md tablet:w-52" name="" id="status">
-            <option value="">LOW</option>
-            <option value="">MEDIUM</option>
-            <option value="">HIGH</option>
-          </select>
+          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="strPriorityFilter"></DropdownMenu>
+          <!-- <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"></DropdownMenu> -->
+
         </div>
       </div>
 
-      <TicketTable></TicketTable>
+      <!-- <TicketTable></TicketTable> -->
     </div>
   </div>
 </template>
 
 <script setup>
-  const router = useRouter()
+import { onMounted } from 'vue';
+import getFetch from '~/fetch/getFetch';
 
+const config = useRuntimeConfig()
+const router = useRouter()
+console.log(router.currentRoute.value.params.id)
+
+const objDeveloper = ref({})
+
+const blnShowNotif = ref(false)
+const blnRequestSuccess = ref()
+const blnLoading = ref(false)
+
+const arrPriorityMenu = ref([])
+const arrStatusMenu = ref([])
+
+const strNotifMessage = ref('')
+const strPriorityFilter = ref()
+const strStatusFilter = ref()
+
+const fnSetStatus = (status) => {
+  strStatusFilter.value = status
+}
+
+
+const fnSetPriority = (priority) => {
+  strPriorityFilter.value = priority
+}
+
+
+const fnFetchStatus = async() => {
+  const { data } = await getFetch(`${config.public.server_url}/api/status`)
+  arrStatusMenu.value = [...data]
+  console.log('status',arrStatusMenu.value)
+}
+
+const fnFetchPriorities = async() => {
+  const { data } = await getFetch(`${config.public.server_url}/api/priorities`)
+  arrPriorityMenu.value = [...data]
+  console.log('priority',arrPriorityMenu.value)
+
+}
+
+const fnFetchData = async() => {
+
+
+  const {data , message, response_error} = await getFetch(`${config.public.server_url}/api/users/${router.currentRoute.value.params.id}`)
+  if(!data) {
+    blnShowNotif.value = true
+    blnLoading.value = false
+    strNotifMessage.value = message
+    blnRequestSuccess.value = false
+    return
+  }
+  objDeveloper.value = data
+  blnLoading.value = false
+}
+
+onMounted( async() => {
+  fnFetchData()
+  await fnFetchStatus()
+  await fnFetchPriorities()
+})
 </script>
 
 <style lang="scss" scoped>

@@ -33,10 +33,12 @@
         </div>
       </div>
       
-      <div class="flex justify-between items-center border rounded-md mt-4 w-4/5 self-center tablet:self-auto tablet:mt-0 tablet:w-80 laptop:w-64 desktop:w-80 bg-white">
-        <input class="outline-none py-1 px-2 w-full " type="text" placeholder="Search..." >
-        <font-awesome :icon="'magnifying-glass'" class="text-slate-800 text-xl px-2"/>
-      </div>
+      <form @submit.prevent="fnSearch">
+        <div class="flex justify-between items-center border rounded-md mt-4 w-4/5 self-center tablet:self-auto tablet:mt-0 tablet:w-80 laptop:w-64 desktop:w-80 bg-white">
+          <input class="outline-none py-1 px-2 w-full " type="text" placeholder="Search..." v-model="strSearch">
+          <font-awesome :icon="'magnifying-glass'" class="text-slate-800 text-xl px-2" @click="fnSearch"/>
+        </div>
+      </form>
     </div>
 
     <TicketTable :arr-tickets="arrTickets" :num-total-tickets="numTotalTickets" :bln-loading="blnLoading"></TicketTable>
@@ -106,9 +108,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import getFetch from '../fetch/getFetch.js'
-
+import { status, priority } from '../../helpers/filters.js'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -122,10 +124,11 @@ const numCurrentPage = ref(1)
 const numPageLimit = ref(5)
 const numPageCursor = ref(0)
 const numPaginationLimit = ref(5)
-const arrStatusMenu = ref([])
-const arrPriorityMenu = ref([])
+const arrStatusMenu = ref(status)
+const arrPriorityMenu = ref(priority)
 const strStatusFilter = ref('')
 const strPriorityFilter = ref('')
+const strSearch = ref('')
 
 //Pagination functions
 const fnPaginationNext = () => {
@@ -187,15 +190,28 @@ const fnSetPriority = (priority) => {
   fnFetchData()
 }
 
+const fnSearch = () => {
+  numCurrentPage.value = 1
+  numPageCursor.value = 0
+  strSearch.value && fnFetchData()
+}
+
+
+//Watch Search String
+watch(strSearch, (val, oldVal) => {   //Refreshes the page when input box is empty
+  if(val === '' && oldVal !== ' ')  fnFetchData()
+})
 
 //Fetch Data
 const fnFetchData = async() => {
   
-  const query = {
+  let query = {
     page: numCurrentPage.value + numPageCursor.value,
     status: strStatusFilter.value ? strStatusFilter.value : 'All',
     priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
   }
+  
+  if(strSearch.value !== '') query = {...query, search: strSearch.value}
 
   navigateTo({
     path: '/tickets',
@@ -215,7 +231,8 @@ const fnFetchData = async() => {
     blnRequestSuccess.value = false
     return
   }
-  arrTickets.value = data
+  arrTickets.value = [...data.tickets]
+  numTotalTickets.value = data.total_tickets
   blnLoading.value = false
 }
 
@@ -223,8 +240,8 @@ const fnFetchData = async() => {
 const fnSetPageQuery = () => {
   numPageCursor.value = route.query.page > 5 ? Math.ceil(numTotalTickets.value/numPageLimit.value) - numPageLimit.value  : 0
   numCurrentPage.value = route.query.page ? (parseInt(route.query.page) - numPageCursor.value ) : 1
-  strStatusFilter.value = route.query.status ?  route.query.status : 'All'
-  strPriorityFilter.value = route.query.priority ? route.query.priority : 'All'
+  strStatusFilter.value =  route.query.status
+  strPriorityFilter.value = route.query.priority 
   if(numPageCursor.value + numCurrentPage.value > Math.ceil(numTotalTickets.value/numPageLimit.value)){
     numPageCursor.value = 0
      numCurrentPage.value = 1
@@ -232,6 +249,10 @@ const fnSetPageQuery = () => {
   fnFetchData()
 }
 
+
+
+//Filters
+//Temporarity disabled, looking for a best solution for this.
 const fnFetchTotalTickets = async() => {
   const { data } = await getFetch(`${config.public.server_url}/api/tickets/total`)
   numTotalTickets.value = data
@@ -249,10 +270,10 @@ const fnFetchPriorities = async() => {
 
 
 onMounted( async () => {
-  await fnFetchPriorities()
-  await fnFetchStatus()
-  await fnFetchTotalTickets()
-  fnSetPageQuery()
+  // await fnFetchPriorities()
+  // await fnFetchStatus()
+  // await fnFetchTotalTickets()
+   fnSetPageQuery()
 })
 
 

@@ -39,7 +39,7 @@
 
             </div>
           </div>
-          <div class="flex flex-col gap-y-5 tablet:align-middle mt-10">
+          <div class="flex flex-col gap-y-2 tablet:align-middle mt-10">
             <NuxtLink :to="menu.link" v-for="(menu, index) in sidebarMenus" 
               class=" font-semibold  px-2  rounded-md duration-200 transition-all ease-in-out"
               :class="menu.isActive? 'bg-indigo-950 text-indigo-50': 'hover:bg-indigo-200'"

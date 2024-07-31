@@ -18,7 +18,6 @@
     
       <tbody class="" :class="blnLoading && 'blur-sm'">
 
-
         <tr class="border-b text-start h-9 align-middle tablet:h-10 laptop:h-12" v-for="(ticket, index) in arrTickets">
 
           <td class="pl-5 cursor-pointer text-indigo-800 font-semibold  ">
@@ -66,7 +65,7 @@
       <Loading class="bg-slate-50 rounded-lg px-6 py-4"></Loading>
     </div>
 
-    <div v-if="!arrTickets && !blnLoading" class="text-center">
+    <div v-if="!arrTickets.length && !blnLoading" class="text-center">
       <p class="py-3 px-2">No data to show</p>
     </div>
 
@@ -87,6 +86,7 @@ const showEmail = ref()
 const showDescription = ref()
 const blnShowModal = ref(false)
 const objTicket = ref()
+const arrCheck = ref(props.arrTickets)
 
 const fnShowEmail = (index) => showEmail.value = index
 const fnShowDescription = (index) => showDescription.value = index

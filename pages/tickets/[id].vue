@@ -3,7 +3,10 @@
     <PageTitle :page-title="router.currentRoute.value.params.id" :ret-btn="true"/>
 
     <div class="relative text-slate-800 mt-2 p-2 laptop:grid laptop:grid-cols-2 gap-x-3">
-      <div class=" p-2 rounded-md shadow-md border">
+
+      <TicketCardSkeleton v-if="blnLoading"></TicketCardSkeleton>
+      
+      <div class=" p-2 rounded-md shadow-md border" v-else>
         <p class="text-xl font-bold">{{ objTicket.category ? objTicket.category : '--' }}</p>
         <div class="flex items-center gap-2 my-2">
           <div class="h-16 w-16 border-4 border-indigo-950 rounded-full" v-if="objTicket.submitted_by.image" >
@@ -116,18 +119,18 @@
           </div>
         </div>
 
-        <div class="mt-4">
-          <div class="flex gap-2 justify-end"  v-if="blnShowEditOpt">
-            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85"  @click="fnCancelEdit">Cancel</button>
-            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85">Save</button>
-          </div>
-          <div class="flex gap-2 justify-end" v-else>
-            <button class="px-2 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85" @click="() => blnShowEditOpt = true">Edit</button>
+        <div class="mt-4 flex justify-end gap-5 items-end" >
+          <Loading v-if="blnEditLoading"></Loading>
+          <div>
+            <div class="flex gap-2"  v-if="blnShowEditOpt">
+              <button class="px-3 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85"  @click="fnCancelEdit">Cancel</button>
+              <button class="px-3 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85" @click="fnUpdateTicket">Save</button>
+            </div>
+            <div class="flex gap-2" v-else>
+              <button class="px-3 py-1 bg-indigo-950 text-white rounded-md hover:opacity-85" @click="() => blnShowEditOpt = true">Edit</button>
+            </div>
           </div>
         </div>
-
-      
-
       </div>
 
 
@@ -156,22 +159,25 @@
           </div>
           <div class=" flex justify-center items-center px-5 py-1 gap-2">
             <input class="w-full py-1 px-3 rounded-full border outline-none" type="text" placeholder="Compose...">
-            <font-awesome :icon="'paper-plane'" class="text-2xl p-2 w-5 h-5 rounded-full hover:bg-purple-100 transition-all duration-200 text-blue-400 mr-2 cursor-pointer"/>
+            <font-awesome :icon="'paper-plane'" class="text-2xl p-2 w-5 h-5 rounded-full hover:bg-purple-100 transition-all duration-200 text-indigo-950 mr-2 cursor-pointer"/>
             <!-- <img class="w-6" src="~assets/icons/paper-plane.png" alt=""> -->
           </div>
         </div>
         <div>
-          <button class="px-3 py-1 border bg-blue-700 rounded-sm text-white hover:bg-blue-600">Reply</button>
-          <button class="px-3 py-1 border bg-blue-700 rounded-sm text-white hover:bg-blue-600">Note</button>
+          <button class="px-3 py-1 border rounded-l-md bg-indigo-950 rounded-sm text-white hover:bg-indigo-950/90">Reply</button>
+          <button class="px-3 py-1 border rounded-r-md bg-indigo-950 rounded-sm text-white hover:bg-indigo-950/90">Note</button>
         </div>
 
       </div>
-
+<!-- 
       <div class="absolute w-full h-full top-0 left-0 text-center bg-black/10  flex justify-center items-center rounded-lg" v-if="blnLoading">
-        <Loading class="bg-slate-50 rounded-lg px-6 py-4 z-20"></Loading>
-      </div>
+        
+      </div> -->
+
 
     </div>
+
+    <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess" @closeNotif="()=> blnShowNotif = false"></Notification>
 
    
   </div>
@@ -179,26 +185,33 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import TicketCardSkeleton from '~/components/Loading/TicketCardSkeleton.vue';
 import getFetch from '../../fetch/getFetch.js'
 
 
 const router = useRouter()
 const config = useRuntimeConfig()
+
+
 const objTicket = ref({submitted_by: {}})
-const blnLoading = ref(false)
+
 const strTicketStatus = ref()
 const strTicketPriority = ref()
+const strNotifMessage = ref('')
 
 const arrStatusMenu = ref([])
 const arrPriorityMenu = ref([])
-
 const arrDevNames = ref()
 const arrNewAssignedDevID = ref()
 
+const blnLoading = ref(false)
+const blnEditLoading = ref(false)
 const blnShowStatusOpt = ref(false)
 const blnShowPriorityOpt = ref(false)
 const blnShowDevelopers = ref(false)
 const blnShowEditOpt = ref(false)
+const blnShowNotif = ref(false)
+const blnRequestSuccess = ref()
 
 const numActiveStatus = ref()
 const numActivePriority = ref()
@@ -239,7 +252,6 @@ const fnAssignDev = (dev) => {
 }
 
 
-
 const fnCheckId = (id) => {
   const assignedDevId = arrAssignedDev.value.map(data => data._id)
   return assignedDevId.includes(id) ? true : false
@@ -265,15 +277,40 @@ const fnDisplayPriority = (priority_id) => {
   return text
 }
 
-const fnCancelEdit = () => {47
+const fnCancelEdit = () => {
   blnShowEditOpt.value = false
   strTicketPriority.value = objTicket.value.priority
   strTicketStatus.value = objTicket.value.status
-  arrAssignedDev.value = [...objTicket.value.assigned_devs]
+  arrAssignedDev.value = [...objTicket.value.assignee]
 }
 
 
-
+const fnUpdateTicket = async () => {
+  blnEditLoading.value = true
+  try {
+    const res = await $fetch(`${config.public.server_url}/api/tickets/${router.currentRoute.value.params.id}`,{
+      method: 'POST',
+      headers :{
+        'Content-Type' : 'application/json'
+      },
+      body: JSON.stringify({
+        status: strTicketStatus.value,
+        priority: strTicketPriority.value,
+        assignee: arrNewAssignedDevID.value
+      })
+    })
+    blnEditLoading.value = false
+    blnShowNotif.value = true
+    strNotifMessage.value = res.message
+    blnRequestSuccess.value = true
+  } catch (error) {
+    blnEditLoading.value = false
+    blnShowNotif.value = true
+    blnRequestSuccess.value = false
+    strNotifMessage.value = 'Error while updating ticket. Please contact IT support. '
+  }
+  blnShowEditOpt.value = false
+}
 
 
 // Fetch Functions
@@ -287,8 +324,9 @@ const fnFetchPriorities = async() => {
   arrPriorityMenu.value = data
 }
 
-const fetchUserData = async () => {
-  const { data } = await getFetch(`${config.public.server_url}/api/users/`)
+//Fetch developers
+const fetchUserData = async () => { 
+  const { data } = await getFetch(`${config.public.server_url}/api/users`)
   arrDevNames.value = data
   console.log(data)
 }
@@ -304,18 +342,10 @@ onMounted(async () => {
     blnLoading.value = false
     strNotifMessage.value = message
   }
-  data.assigned_devs =  [ {
-    _id: "668bd0c28a525beeaf38c760",
-    first_name: 'Vincent Louie',
-    last_name: 'Arrabis',
-    email: 'vincentla@meditab.com'
-  } ]
-
-  console.log(data.assigned_devs)
   objTicket.value = {...data}
   strTicketStatus.value = data.status
   strTicketPriority.value = data.priority
-  arrAssignedDev.value = [...data.assigned_devs]
+  arrAssignedDev.value = [...data.assignee]
   blnLoading.value = false
   arrNewAssignedDevID.value = arrAssignedDev.value.map(dev => dev._id)
    
