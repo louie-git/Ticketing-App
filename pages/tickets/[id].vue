@@ -67,8 +67,9 @@
         </div>
 
         <div class="my-3" >
-          <div class="flex gap-3">
-            <p class="font-bold">Assignee</p>
+          <p class="font-bold">Assignee</p>
+          <p class="" v-if="!arrAssignedDev.length">No developers assigned.</p>
+          <div  class="flex gap-3">
             <button v-if="blnShowEditOpt"> 
               <font-awesome :icon="'plus'" class="border p-0.5 rounded text-sm border-slate-400 text-slate-500 cursor-pointer" @click="fnToggleDevNamesOpt"/>
             </button>
@@ -93,25 +94,14 @@
               </div>
             </div>
           </div>
-
         </div>
+
+
         <div class="">
-          <p class="font-bold ">Uploaded Documents</p>
+          <p class="font-bold ">Uploaded Images</p>
           <div class="flex gap-2 flex-row flex-wrap">
-            <div class="w-20 h-20 relative cursor-pointer">
-                <img class="h-full w-full object-cover rounded-md " src="~assets/images/cat1.jpg" alt="">
-                <div class="absolute top-0 w-full h-full opacity-0 flex justify-center items-center hover:opacity-100 hover:backdrop-blur-sm transition-all duration-100">
-                  <p class="px-1  text-white text-sm">expand</p>
-                </div>
-            </div>
-            <div class="w-20 h-20 relative cursor-pointer">
-                <img class="h-full w-full object-cover rounded-md " src="~assets/images/cat2.jpg" alt="">
-                <div class="absolute top-0 w-full h-full opacity-0 flex justify-center items-center hover:opacity-100 hover:backdrop-blur-sm transition-all duration-100">
-                  <p class="px-1  text-white text-sm">expand</p>
-                </div>
-            </div>
-            <div class="w-20 h-20 relative cursor-pointer">
-                <img class="h-full w-full object-cover rounded-md " src="~assets/images/cat3.jpg" alt="">
+            <div class="w-20 h-20 relative cursor-pointer" v-for="image in arrImages" @click="fnImageModal(image)">
+                <img class="h-full w-full object-cover rounded-md " :src="`/_nuxt/assets/images/${image}`" alt="" >
                 <div class="absolute top-0 w-full h-full opacity-0 flex justify-center items-center hover:opacity-100 hover:backdrop-blur-sm transition-all duration-100">
                   <p class="px-1  text-white text-sm">expand</p>
                 </div>
@@ -119,6 +109,8 @@
           </div>
         </div>
 
+
+        <!-- Ticket Card Footer -->
         <div class="mt-4 flex justify-end gap-5 items-end" >
           <Loading v-if="blnEditLoading"></Loading>
           <div>
@@ -145,7 +137,7 @@
                   <img class="h-full w-full object-cover rounded-full " src="~assets/images/cat3.jpg" alt="">
                 </div>
                 <div class=" break-words text-wrap w-10/12 bg-blue-600 text-white rounded-2xl p-2 relative mr-20">
-                  <p class="text-sm">sfdsffsdfdsfsdfsfdsffdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfdsfsdfdsfsfdsfddsfdsfdsfdsf sfds fdf</p>
+                  <p class="text-sm">I am chicken</p>
                   <p class="absolute -top-4 text-slate-800 text-xs">alexw@email.com</p>
                 </div>
               </div>
@@ -169,16 +161,12 @@
         </div>
 
       </div>
-<!-- 
-      <div class="absolute w-full h-full top-0 left-0 text-center bg-black/10  flex justify-center items-center rounded-lg" v-if="blnLoading">
-        
-      </div> -->
-
 
     </div>
 
     <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess" @closeNotif="()=> blnShowNotif = false"></Notification>
-
+    <ImageModal v-if="blnToggleImageModal" :image="strImage" @toggle-modal="fnCloseModal"></ImageModal>
+    
    
   </div>
 </template>
@@ -186,23 +174,25 @@
 <script setup>
 import { onMounted } from 'vue';
 import TicketCardSkeleton from '~/components/Loading/TicketCardSkeleton.vue';
+import ImageModal from '~/components/Modals/ImageModal.vue';
 import getFetch from '../../fetch/getFetch.js'
 
 
 const router = useRouter()
 const config = useRuntimeConfig()
 
-
 const objTicket = ref({submitted_by: {}})
 
 const strTicketStatus = ref()
 const strTicketPriority = ref()
 const strNotifMessage = ref('')
+const strImage = ref('')
 
 const arrStatusMenu = ref([])
 const arrPriorityMenu = ref([])
 const arrDevNames = ref()
 const arrNewAssignedDevID = ref()
+const arrImages = ref(['cat1.jpg', 'cat2.jpg', 'cat3.jpg'])
 
 const blnLoading = ref(false)
 const blnEditLoading = ref(false)
@@ -212,10 +202,10 @@ const blnShowDevelopers = ref(false)
 const blnShowEditOpt = ref(false)
 const blnShowNotif = ref(false)
 const blnRequestSuccess = ref()
+const blnToggleImageModal = ref(false)
 
 const numActiveStatus = ref()
 const numActivePriority = ref()
-
 const strStatus = ref('')
 
 const arrAssignedDev = ref([])
@@ -284,6 +274,12 @@ const fnCancelEdit = () => {
   arrAssignedDev.value = [...objTicket.value.assignee]
 }
 
+const fnImageModal = (image) => {
+  blnToggleImageModal.value = true
+  strImage.value = image 
+}
+
+const fnCloseModal = () => blnToggleImageModal.value = false
 
 const fnUpdateTicket = async () => {
   blnEditLoading.value = true

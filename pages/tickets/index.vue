@@ -14,7 +14,7 @@
       <div class=" flex flex-col  tablet:flex-row gap-3">
         <div class="flex-col flex items-center tablet:block">
           <p class="font-semibold">Status</p>
-          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus" :current-filter="strStatusFilter"></DropdownMenu>
+          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus" :current-filter="objQuery.status"></DropdownMenu>
 
           <!-- <select class="outline-none w-4/5 py-1 px-2 border text-sm rounded-md tablet:w-52" name="" id="status">
             <option value="">Completed</option>
@@ -29,7 +29,7 @@
             <option value="">Medium</option>
             <option value="">High</option>
           </select> -->
-          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="strPriorityFilter"></DropdownMenu>
+          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="objQuery.priority"></DropdownMenu>
         </div>
       </div>
       
@@ -83,14 +83,14 @@
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 border-slate-300 
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationNext" :disabled="blnLoading || numCurrentPage === Math.ceil(numTotalTickets/numPageLimit)">
+        @click="fnPaginationNext" :disabled="blnLoading || numCurrentPage + numPageCursor === Math.ceil(numTotalTickets/numPageLimit)">
           <font-awesome :icon="'angle-right'" class="m-auto text-xs" />
         </button>
         <button type="button" class=" w-8 h-7 flex border border-l-0 hover:bg-indigo-500 hover:text-slate-50 transition-colors duration-200
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 rounded-tr-md rounded-br-md  border-slate-300
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationSkip('last')" :disabled="blnLoading || numCurrentPage === Math.ceil(numTotalTickets/numPageLimit)" >
+        @click="fnPaginationSkip('last')" :disabled="blnLoading || numCurrentPage + numPageCursor === Math.ceil(numTotalTickets/numPageLimit)" >
           <font-awesome :icon="'angles-right'" class="m-auto text-xs" />
         </button>
     
@@ -99,7 +99,6 @@
     </div>
 
     <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess"  @closeNotif="()=> blnShowNotif = false"></Notification>
-
 
     
 
@@ -111,6 +110,7 @@
 import { onMounted, watch } from 'vue';
 import getFetch from '../fetch/getFetch.js'
 import { status, priority } from '../../helpers/filters.js'
+import { routerKey } from 'vue-router';
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -129,6 +129,8 @@ const arrPriorityMenu = ref(priority)
 const strStatusFilter = ref('')
 const strPriorityFilter = ref('')
 const strSearch = ref('')
+const objQuery = ref({})
+
 
 //Pagination functions
 const fnPaginationNext = () => {
@@ -181,12 +183,18 @@ const fnPaginationSkip = (value) => {
 
 //Set Filter Function
 const fnSetStatus = (status) => {
-  strStatusFilter.value = status
+  if(status === 'All') delete objQuery.value.status
+  else objQuery.value.status = status
+  numPageCursor.value = 0
+  numCurrentPage.value = 1
   fnFetchData()
 }
 
 const fnSetPriority = (priority) => {
-  strPriorityFilter.value = priority
+  if(priority === 'All') delete objQuery.value.priority
+  else objQuery.value.priority = priority
+  numPageCursor.value = 0
+  numCurrentPage.value = 1
   fnFetchData()
 }
 
@@ -205,23 +213,27 @@ watch(strSearch, (val, oldVal) => {   //Refreshes the page when input box is emp
 //Fetch Data
 const fnFetchData = async() => {
   
-  let query = {
-    page: numCurrentPage.value + numPageCursor.value,
-    status: strStatusFilter.value ? strStatusFilter.value : 'All',
-    priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
-  }
+  // let query = {
+  //   page: numCurrentPage.value + numPageCursor.value,
+  //   status: strStatusFilter.value ? strStatusFilter.value : 'All',
+  //   priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
+  // }
   
-  if(strSearch.value !== '') query = {...query, search: strSearch.value}
 
+  if(strSearch.value !== '') objQuery.value.search = strSearch.value
+
+  objQuery.value.page =  numCurrentPage.value + numPageCursor.value
+
+  console.log('here',objQuery.value)
   navigateTo({
     path: '/tickets',
-    query
+    query: objQuery.value
   })
 
   console.log('request', numCurrentPage.value + numPageCursor.value)
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets`,query)
+  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets`,objQuery.value)
   console.log(data, message, response_error)
   console.log(!data)
   if(!data) {
@@ -238,14 +250,13 @@ const fnFetchData = async() => {
 
 
 const fnSetPageQuery = () => {
-  numPageCursor.value = route.query.page > 5 ? Math.ceil(numTotalTickets.value/numPageLimit.value) - numPageLimit.value  : 0
-  numCurrentPage.value = route.query.page ? (parseInt(route.query.page) - numPageCursor.value ) : 1
-  strStatusFilter.value =  route.query.status
-  strPriorityFilter.value = route.query.priority 
-  if(numPageCursor.value + numCurrentPage.value > Math.ceil(numTotalTickets.value/numPageLimit.value)){
-    numPageCursor.value = 0
-     numCurrentPage.value = 1
-  }
+  route.query.status && (objQuery.value.status = route.query.status)
+  route.query.priority && (objQuery.value.priority = route.query.priority)
+  if(route.query.page){
+    numCurrentPage.value = route.query.page > 5 ? 5 : parseInt(route.query.page)
+    numPageCursor.value = route.query.page > 5 ? parseInt(route.query.page) - 5 : 0
+  } 
+  console.log(numPageCursor.value , numCurrentPage.value, route.query.page)
   fnFetchData()
 }
 
@@ -270,9 +281,6 @@ const fnFetchPriorities = async() => {
 
 
 onMounted( async () => {
-  // await fnFetchPriorities()
-  // await fnFetchStatus()
-  // await fnFetchTotalTickets()
    fnSetPageQuery()
 })
 
