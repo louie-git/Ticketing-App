@@ -284,7 +284,7 @@ const fnCloseModal = () => blnToggleImageModal.value = false
 const fnUpdateTicket = async () => {
   blnEditLoading.value = true
   try {
-    const res = await $fetch(`${config.public.server_url}/api/tickets/${router.currentRoute.value.params.id}`,{
+    const res = await $fetch(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`,{
       method: 'POST',
       headers :{
         'Content-Type' : 'application/json'
@@ -311,18 +311,18 @@ const fnUpdateTicket = async () => {
 
 // Fetch Functions
 const fnFetchStatus = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/api/status`)
+  const { data } = await getFetch(`${config.public.server_url}/status`)
   arrStatusMenu.value = data
 }
 
 const fnFetchPriorities = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/api/priorities`)
+  const { data } = await getFetch(`${config.public.server_url}/priorities`)
   arrPriorityMenu.value = data
 }
 
 //Fetch developers
 const fetchUserData = async () => { 
-  const { data } = await getFetch(`${config.public.server_url}/api/users`)
+  const { data } = await getFetch(`${config.public.server_url}/users`)
   arrDevNames.value = data
   console.log(data)
 }
@@ -331,7 +331,7 @@ onMounted(async () => {
   console.log('run heree')
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/tickets/${router.currentRoute.value.params.id}`)
+  const {data, message, response_error} = await getFetch(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`)
   if(response_error.status) {
     console.log('error')
     blnShowNotif.value = true

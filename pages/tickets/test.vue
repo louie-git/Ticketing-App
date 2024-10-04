@@ -1,14 +1,20 @@
 <template>
-  <div>
-    hello
-  </div>
+  <default1>
+    <div>
+      hello
+    </div>
+
+  </default1>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 
 
-let value = 578
+
+
+let value = 49
+
 // const = ['x', 'ix', 'viii', 'vii', 'vi','v','iv','iii',ii,i]
 
 const refs = [

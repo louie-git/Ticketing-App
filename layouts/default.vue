@@ -1,8 +1,9 @@
 <template>
   <div class="font-body">
 
+    <div class="absolute left-1/2 top-0 border w-7 h-7 bg-red-600 tablet:bg-green-600 laptop:bg-yellow-600 desktop:bg-blue-700 z-50 "></div>
     <header
-      class="w-full h-14 flex justify-between items-center px-3 shadow-sm transition-all ease-in-out duration-500 tablet:pl-64 bg-indigo-50">
+      class="w-full h-14 flex justify-between items-center px-3 shadow-sm transition-all ease-in-out duration-500 tablet:pl-64 bg-indigo-950">
       <NuxtLink to="/" class="tablet:opacity-0">
         <div class="flex items-center gap-x-3">
           <img class="w-10" src="~assets/icons/ticket.png" alt="">

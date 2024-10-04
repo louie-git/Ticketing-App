@@ -85,17 +85,22 @@ const numPageCursor = ref(0)
 const numPageLimit = ref(5)
 
 const fnSetStatus = (status) => {
-  strStatusFilter.value = status
-  objQuery.value.status = status
+  if(status === 'All') delete objQuery.value.status
+  else objQuery.value.status = status
+  numPageCursor.value = 0
+  numCurrentPage.value = 1
+  fnFetchData()
 }
 
 
 const fnSetPriority = (priority) => {
-  strPriorityFilter.value = priority
-  objQuery.value.priority = priority
+
+  if(priority === 'All') delete objQuery.value.priority
+  else objQuery.value.priority = priority
+  numPageCursor.value = 0
+  numCurrentPage.value = 1
+  fnFetchData()
 }
-
-
 
 const fnSetPage = (page,cursor) => {
   console.log('dev',page,cursor)
@@ -105,28 +110,25 @@ const fnSetPage = (page,cursor) => {
 }
 
 const fnSetPageQuery = () => {
-
-  numPageCursor.value = route.query.page > 5 ? Math.ceil(numTotalTickets.value/numPageLimit.value) - numPageLimit.value  : 0
-  numCurrentPage.value = route.query.page ? (parseInt(route.query.page) - numPageCursor.value ) : 1
   route.query.status && (objQuery.value.status = route.query.status)
   route.query.priority && (objQuery.value.priority = route.query.priority)
+  if(route.query.page){
+    numCurrentPage.value = route.query.page > 5 ? 5 : parseInt(route.query.page)
+    numPageCursor.value = route.query.page > 5 ? parseInt(route.query.page) - 5 : 0
+  } 
 
-  if(numPageCursor.value + numCurrentPage.value > Math.ceil(numTotalTickets.value/numPageLimit.value)){
-    numPageCursor.value = 0
-     numCurrentPage.value = 1
-  }
   fnFetchData()
 }
 
 //Fetch data
 const fnFetchStatus = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/api/status`)
+  const { data } = await getFetch(`${config.public.server_url}/status`)
   arrStatusMenu.value = [...data]
   console.log('status',arrStatusMenu.value)
 }
 
 const fnFetchPriorities = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/api/priorities`)
+  const { data } = await getFetch(`${config.public.server_url}/priorities`)
   arrPriorityMenu.value = [...data]
   console.log('priority',arrPriorityMenu.value)
 
@@ -134,20 +136,17 @@ const fnFetchPriorities = async() => {
 
 const fnFetchData = async() => {
 
-  // let query = {
-  //   page: numCurrentPage.value + numPageCursor.value,
-  //   status: strStatusFilter.value ? strStatusFilter.value : 'All',
-  //   priority: strPriorityFilter.value ? strPriorityFilter.value : 'All',
-  // }
-  
+  // route.query.page == 1  ? '' : objQuery.value.page =  numCurrentPage.value + numPageCursor.value
+
+
+  objQuery.value.page =  numCurrentPage.value + numPageCursor.value
   navigateTo({
     path: `/developers/${router.currentRoute.value.params.id}`,
     query: objQuery.value
   })
-
-  console.log('request', numCurrentPage.value + numPageCursor.value)
-
-  const {data , message, response_error} = await getFetch(`${config.public.server_url}/api/users/${router.currentRoute.value.params.id}`)
+  
+  blnLoading.value = true
+  const {data , message, response_error} = await getFetch(`${config.public.server_url}/users/${router.currentRoute.value.params.id}`,objQuery.value)
   if(!data) {
     blnShowNotif.value = true
     blnLoading.value = false
@@ -155,6 +154,7 @@ const fnFetchData = async() => {
     blnRequestSuccess.value = false
     return
   }
+  console.log('this is',data)
   objDeveloper.value = data.user
   arrTickets.value = [ ...data.tickets ]
   numTotalTickets.value = data.total_tickets

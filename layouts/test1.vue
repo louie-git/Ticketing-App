@@ -1,5 +1,5 @@
 <template>
-  <header class="small:top-0 small:sticky z-10">
+  <!-- <header class="small:top-0 small:sticky z-10">
     <nav class="flex justify-between px-5 items-center py-4 bg-blue-100">
       <NuxtLink to="/">
         <div class="flex items-center gap-x-3">
@@ -12,10 +12,10 @@
       </div>
      
     </nav>
-  </header>
+  </header> -->
 
   <div class="w-full h-full tablet:flex">
-    <div class=" fixed top-0 -left-full w-full 
+    <!-- <div class=" fixed top-0 -left-full w-full 
     h-screen small:bg-black/70 transition-all ease-in
     small:z-10
     tablet:relative tablet:w-80 border-blue-500 border tablet:bg-inherit
@@ -34,9 +34,10 @@
           </NuxtLink>
         </div>
       </div>
-    </div>
+    </div> -->
     <div >
       <slot/>
+      dsds
     </div>
   </div>
 </template>

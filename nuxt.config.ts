@@ -20,7 +20,7 @@ export default defineNuxtConfig({
         'download', 'arrow-left', 
         'paper-plane', 'eye', 
         'gears', 'angle-left', 'angle-right', 'angles-left', 'angles-right', 'angle-down',
-        'plus','pencil', 'user'
+        'plus','pencil', 'user', 'list', 'clock', 'spinner', 'check'
       ],
       regular: ['comment', 'face-smile'],
       brands: ['twitter'],

@@ -14,7 +14,7 @@
       </form>
     </div>
 
-    <div class="mt-5">
+    <!-- <div class="mt-5">
       <p class="text-lg font-semibold">Create Status</p>
       <form @submit.prevent="createStatus">
         <div class="">
@@ -31,6 +31,16 @@
         <div class="">
           <input class="block mb-2" type="text" placeholder="Enter Email" v-model="priority">
           <input class="bg-indigo-950 hover:opacity-80 p-2 rounded-md text-white transition-all duration-300" type="submit" value="Invite">
+        </div>
+      </form>
+    </div> -->
+
+    <div class="mt-5">
+      <p class="text-lg font-semibold">Create Category</p>
+      <form @submit.prevent="createCategory">
+        <div class="">
+          <input class="block mb-2" type="text" placeholder="Category Name" v-model="categoryName">
+          <input class="bg-indigo-950 hover:opacity-80 p-2 rounded-md text-white transition-all duration-300" type="submit" value="submit">
         </div>
       </form>
     </div>
@@ -50,12 +60,13 @@ const blnRequestSuccess = ref()
 
 const status = ref('')
 const priority = ref('')
+const categoryName = ref('')
 
-console.log(`${config.public.server_url}/api/users`)
+console.log(`${config.public.server_url}/users`)
 
 const createUser = async() => {
   try {
-    const response = await $fetch(`${config.public.server_url}/api/users`, {
+    const response = await $fetch(`${config.public.server_url}/users`, {
       method: 'post',
       headers: {
        'Content-type' : 'application/json', 
@@ -79,7 +90,7 @@ const createUser = async() => {
 
 const createStatus = async() => {
   try {
-    const response = await $fetch(`${config.public.server_url}/api/status`, {
+    const response = await $fetch(`${config.public.server_url}/status`, {
       method: 'post',
       headers: {
        'Content-type' : 'application/json', 
@@ -104,7 +115,7 @@ const createStatus = async() => {
 
 const createPriority = async() => {
   try {
-    const response = await $fetch(`${config.public.server_url}/api/priorities`, {
+    const response = await $fetch(`${config.public.server_url}/priorities`, {
       method: 'post',
       headers: {
        'Content-type' : 'application/json', 
@@ -125,6 +136,31 @@ const createPriority = async() => {
     blnRequestSuccess.value = false
   }
 
+}
+
+
+const createCategory = async () => {
+  try {
+    
+    const response = await $fetch(`${config.public.server_url}/categories`,{
+      method: 'post',
+      headers: {
+        'Content-type' : 'application/json'
+      },
+      body: JSON.stringify({
+        category: categoryName.value ,
+      })
+    })
+    console.log(response)
+    blnShowNotif.value = true
+    strNotifMessage.value = response.message
+    blnRequestSuccess.value = true
+  } catch (error) {
+    console.log(error)
+    blnShowNotif.value = true
+    strNotifMessage.value = 'Error while creating category.'
+    blnRequestSuccess.value = false
+  }
 }
 </script>
 

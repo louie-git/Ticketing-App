@@ -1,7 +1,5 @@
 
-
 const getFetch = async (url, queries = {}) => {
-
   let queryString = ''
   if(queries) queryString = Object.entries(queries).map(query => `${query[0]}=${query[1]}`).join('&')
   

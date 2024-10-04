@@ -1,15 +1,11 @@
 <template>
-  <div class="">
-    <div class=" w-full tablet:flex tablet:justify-between">
+  <div class="flex flex-col h-[91vh]">
+    <div class="  tablet:flex tablet:justify-between">
       <PageTitle page-title="Developers"/>
-      <!-- <div class="sel self-center flex justify-between items-center shadow-md rounded-sm mt-4 tablet:mt-0">
-        <input class="outline-none py-1 px-2 laptop:w-80" type="text" placeholder="Search...">
-        <font-awesome :icon="'magnifying-glass'" class="text-indigo-700 text-xl px-2"/>
-      </div> -->
     </div>
 
-    <div class="border-b">
-      <div class="  mt-4 h-16 flex justify-center items-center tablet:justify-end px-5 desktop:w-4/5 mx-auto">
+    <div class="rounded-md shadow-md mb-5 bg-indigo-50 mt-5 px-2" >
+      <div class="  mt-4 h-16 flex justify-center items-center tablet:justify-end   ">
         <form @submit.prevent="fnSearch">
           <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 tablet:max-w-80 w-full">
             <input class="outline-none py-1 px-2  " type="text" placeholder="Search..." v-model="strSearch">
@@ -27,8 +23,8 @@
       </div>
     </div>
 
-    <div v-else class="w-full">
-      <div class="  p-2 text-slate-800 mt-4 rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:w-4/5 desktop:mx-auto " >
+    <div  class="flex-1 overflow-auto">
+      <div class="  p-2 text-slate-800 mt-4 rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:gap-2 desktop:mx-auto" >
         <NuxtLink :to="`/developers/${dev._id}`" v-for="dev in objDevelopers">
           <DevCard :dev="dev"></DevCard>
         </NuxtLink>
@@ -81,7 +77,7 @@ const fnFetchData = async() => {
   console.log('thise',)
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/api/users`,query)
+  const {data, message, response_error} = await getFetch(`${config.public.server_url}/users`,query)
   console.log(data, message, response_error)
   console.log(!data)
   if(!data) {
