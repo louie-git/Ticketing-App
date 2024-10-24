@@ -11,7 +11,8 @@
     overflow-hidden 
     tablet:w-3/4 
     laptop:w-[45rem] 
-    laptop:h-[40rem]"  
+    laptop:h-[40rem]
+    "  
     :class="[blnFullDisplay ? 'scale-100': 'scale-75', props.contentType==='image' ? 'bg-zinc-800': 'bg-white']" 
     >
       <div class="relative bg-indigo-900 text-center py-2 text-lg font-bold text-white">

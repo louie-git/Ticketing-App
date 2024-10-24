@@ -13,14 +13,14 @@ export default defineNuxtConfig({
       solid: [
         'code',
         'box-archive', 
-        'archive', 'circle-user', 
+        'archive', 'circle-user', 'users', 
         'arrow-right-from-bracket', 
         'bars', 'xmark', 'house', 
         'clipboard-list', 'magnifying-glass', 
         'download', 'arrow-left', 
-        'paper-plane', 'eye', 
+        'paper-plane', 'eye', 'eye-slash',
         'gears', 'angle-left', 'angle-right', 'angles-left', 'angles-right', 'angle-down',
-        'plus','pencil', 'user', 'list', 'clock', 'spinner', 'check'
+        'plus','pencil', 'user', 'list', 'clock', 'spinner', 'check','key'
       ],
       regular: ['comment', 'face-smile'],
       brands: ['twitter'],

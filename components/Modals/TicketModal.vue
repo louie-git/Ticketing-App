@@ -50,7 +50,7 @@
   
           </div>
   
-          <div class="mt-5">
+          <div class="mt-5 flex-1 overflow-y-auto">
             <div class="">
               <p class=" font-semibold">Description</p>
               <p class="break-all line-clamp-4">{{ objTicket.description }}</p>

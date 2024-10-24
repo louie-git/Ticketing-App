@@ -2,7 +2,7 @@
   <div>
     <div class="flex flex-col items-center gap-3 content-center mx-auto w-full px-4 mt-4 laptop:flex-row laptop:justify-between" >
       <div class="text-sm">
-        Total of <span class="font-semibold underline">{{ numTotalTickets }}</span> tickets
+        Total Data: <span class="font-semibold underline">{{ numTotalData }}</span> 
       </div>
 
       <div class="flex">
@@ -23,7 +23,7 @@
           <font-awesome :icon="'angle-left'" class="m-auto text-xs" />
         </button>
 
-        <div v-for="(page, index) in Math.ceil(numTotalTickets/numPageLimit)">
+        <div v-for="(page, index) in Math.ceil(numTotalData/numPageLimit)">
           <button class="cursor-pointer  w-8 h-7 flex border border-r-0 hover:bg-indigo-500 hover:text-slate-50 transition-colors duration-200
             tablet:w-9 tablet:h-8
             laptop:w-10 laptop:h-9 border-slate-300
@@ -37,33 +37,31 @@
 
         <!-- i dont know why assigning props value to variable doesn't work, 
         instead I used fn to pass props value and assign it in variable inside the fn. Idiot way -->
-        <!-- {{ assignTotalTicket(totalTickets) }} -->
+        <!-- {{ assignTotalTicket(totalData) }} -->
 
         <button class="cursor-pointer  w-8 h-7 flex border hover:bg-indigo-500 hover:text-slate-50 transition-colors duration-200
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 border-slate-300 
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationNext" :disabled="blnLoading || numCurrentPage + numPageCursor >= Math.ceil(numTotalTickets/numPageLimit) ||  numTotalTickets == 0 ">
+        @click="fnPaginationNext" :disabled="blnLoading || numCurrentPage + numPageCursor >= Math.ceil(numTotalData/numPageLimit) ||  numTotalData == 0 ">
           <font-awesome :icon="'angle-right'" class="m-auto text-xs" />
         </button>
         <button type="button" class=" w-8 h-7 flex border border-l-0 hover:bg-indigo-500 hover:text-slate-50 transition-colors duration-200
         tablet:w-9 tablet:h-8
         laptop:w-10 laptop:h-9 rounded-tr-md rounded-br-md  border-slate-300
         disabled:cursor-not-allowed disabled:bg-white disabled:text-black"
-        @click="fnPaginationSkip('last')" :disabled="blnLoading || numCurrentPage + numPageCursor >= Math.ceil(numTotalTickets/numPageLimit) || numTotalTickets == 0 " >
+        @click="fnPaginationSkip('last')" :disabled="blnLoading || numCurrentPage + numPageCursor >= Math.ceil(numTotalData/numPageLimit) || numTotalData == 0 " >
           <font-awesome :icon="'angles-right'" class="m-auto text-xs" />
         </button>
       </div>
     </div>
-    {{ numCurrentPage }} --- {{ numPageCursor }}
-    {{ currentPage}} -- {{ pageCursor }}
   </div>
 </template>
 
 <script setup>
 
 const props = defineProps({
-  totalTickets: {
+  totalData: {
     type: Number,
     default: 0
   },
@@ -80,31 +78,31 @@ const emit = defineEmits(['setPage'])
 const route = useRoute()
 
 const blnLoading = ref(false)
-const numTotalTickets = ref(props.totalTickets)
+const numTotalData = ref(props.totalData)
 const numCurrentPage = ref(1)
 const numPageLimit = ref(5)
 const numPageCursor = ref(0)
 const numPaginationLimit = ref(5)
 
 
-watch(() => props.totalTickets, (newVal, oldVal) =>  numTotalTickets.value = newVal)
+watch(() => props.totalData, (newVal, oldVal) =>  numTotalData.value = newVal)
 watch(() => props.currentPage, (newVal,oldVal) => numCurrentPage.value = newVal)
 watch(() => props.pageCursor, (newVal,oldVal) => numPageCursor.value = newVal)
 
 
-console.log(numTotalTickets.value)
+console.log(numTotalData.value)
 
 const fnPaginationNext = () => {
   
   console.log('next',numCurrentPage.value)
-  let limit = Math.ceil(numTotalTickets.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalTickets.value/numPageLimit.value) // CHeck if the total tickets are morethan 5. if not, assign limit based on the numTotalTicket/5.
+  let limit = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalData.value/numPageLimit.value) // CHeck if the total tickets are morethan 5. if not, assign limit based on the numTotalTicket/5.
   numPaginationLimit.value = limit  // assign the limit that is displayed in  pagination
   if ( numCurrentPage.value+1 <= limit ) {  //move the page +1
     console.log('if',numCurrentPage.value <= limit)
     numCurrentPage.value += 1
   } 
   else {  //if page is = 5, add 1 to cursor to display 6
-    if((numCurrentPage.value + numPageCursor.value + 1 )  <= Math.ceil(numTotalTickets.value/numPageLimit.value)) {
+    if((numCurrentPage.value + numPageCursor.value + 1 )  <= Math.ceil(numTotalData.value/numPageLimit.value)) {
       numPageCursor.value += 1
     }
   }
@@ -133,8 +131,8 @@ const fnPaginationClick = (page) => {
 const fnPaginationSkip = (value) => {
   switch (value) {
     case 'last':
-      numCurrentPage.value = Math.ceil(numTotalTickets.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalTickets.value/numPageLimit.value)
-      numPageCursor.value = Math.ceil(numTotalTickets.value/numPageLimit.value) > 5 ? Math.ceil(numTotalTickets.value/numPageLimit.value) - numPageLimit.value : 0
+      numCurrentPage.value = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalData.value/numPageLimit.value)
+      numPageCursor.value = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? Math.ceil(numTotalData.value/numPageLimit.value) - numPageLimit.value : 0
       console.log(numPageCursor.value, '----', numCurrentPage.value)
       break;
   

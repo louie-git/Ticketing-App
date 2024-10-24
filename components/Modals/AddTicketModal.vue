@@ -32,16 +32,16 @@
         @drop.prevent="fnDropImg"
         >
           <img class="w-10" src="~assets/icons/upload.png" alt="upload">
-          <p>Drag file/s to upload or <label class="text-blue-500 cursor-pointer hover:text-blue-800" for="file-input">Browse</label></p>
-          <input class="hidden" type="file" name="" id="file-input" ref="files" multiple @change="onFileSelect">
+          <p>Drag image/s to upload or <label class="text-blue-500 cursor-pointer hover:text-blue-800" for="file-input">Browse</label></p>
+          <input class="hidden" type="file" name="" id="file-input" ref="files" accept="image/png, image/gif, image/jpeg" multiple @change="onFileSelect">
         </div>
+        <p class=" text-red-600 text-xs" v-if="arrNotAllowedFiles.length > 0"  > {{fnCheckErrorFileAndCount()}} file/s type not allowed </p>
 
         <div class=" flex gap-2 flex-wrap">
-          <div class="relative w-20 h-20 border rounded-md overflow-hidden " v-for="(img, index) in arrImages">
+          <div class="relative w-24 h-24 border rounded-md overflow-hidden " v-for="(img, index) in arrImages">
             <img :src="img.url" alt="uploaded image" class="object-contain w-full h-full m-auto bg-gray-950">
-            <font-awesome :icon="'xmark'" class="w-3 h-3 rounded-full bg-white absolute top-1 right-1  cursor-pointer" @click="fnRemoveImg(index)" />
+            <font-awesome :icon="'xmark'" class="w-4 h-4 rounded-full bg-white/50 absolute top-1 right-1  cursor-pointer hover:bg-white transition-colors duration-300" @click="fnRemoveImg(index)" />
           </div>
-
         </div>
 
       </div>
@@ -70,15 +70,17 @@ const props = defineProps({
 
 
 const ticket = ref({})
-const blnShowDropdown = ref(false)
+
 const strCategoryName = ref('')
-const arrImages = ref([])
+const strNotifMessage = ref('')
+const blnShowDropdown = ref(false)
 const blnFullDisplay = ref(false)
 const blnShowNotif = ref(false)
-const strNotifMessage = ref('')
 const blnRequestSuccess = ref()
 const blnDragOver = ref(false)
 
+const arrImages = ref([])
+const arrNotAllowedFiles = ref([])
 
 const onDragOver = () => blnDragOver.value = true
 
@@ -86,37 +88,44 @@ const onDragOver = () => blnDragOver.value = true
 const onDragLeave = () => blnDragOver.value = false
 
 
-const fnDropImg = (event) => {
-  blnDragOver.value = false
-  console.log('here',event.dataTransfer.files)
-  const files = event.dataTransfer.files
+const arrAllowedFileTypes = ["image/jpeg", "image/png"]
+
+
+
+function fnuploadedFiles(files){  //Push files in array
 
   for(let i = 0; i < files.length; i++){
     console.log(files[i])
     let uri = URL.createObjectURL(files[i])
     console.log(uri)
 
-    arrImages.value.push({
-      name: files[i].name,
-      url: URL.createObjectURL(files[i])
-    })
+    if(arrAllowedFileTypes.includes(files[i].type)){
+      arrImages.value.push({
+        name: files[i].name,
+        url: URL.createObjectURL(files[i])
+      })
+    }
+    else {
+      arrNotAllowedFiles.value.push(files[i].name)
+    }
   }
+}
+
+function fnCheckErrorFileAndCount () {
+  arrNotAllowedFiles.value.length
+  setTimeout(() => arrNotAllowedFiles.value = [] , 5000)
+  return arrNotAllowedFiles.value.length
+}
+
+const fnDropImg = (event) => {
+  blnDragOver.value = false
+  const files = event.dataTransfer.files
+  fnuploadedFiles(files)
 }
 
 const onFileSelect = (event) => {
   const files = event.target.files
-
-for(let i = 0; i < files.length; i++){
-  console.log(files[i])
-  let uri = URL.createObjectURL(files[i])
-  console.log(uri)
-
-  arrImages.value.push({
-    name: files[i].name,
-    url: URL.createObjectURL(files[i])
-  })
-}
-  
+  fnuploadedFiles(files)
 
 }
 
@@ -126,7 +135,6 @@ const fnRemoveImg = (index) => {
       return img
      }
   })
-
   console.log(arrImages.value)
 }
 

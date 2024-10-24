@@ -21,6 +21,11 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+  layout: 'default1'
+})
+
 import AddTicketModal from '../components/Modals/AddTicketModal.vue'
 import getFetch from '../../fetch/getFetch.js'
 

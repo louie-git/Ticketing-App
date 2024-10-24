@@ -48,7 +48,7 @@
       </div>
       <TicketTable :arr-tickets="arrTickets" :bln-loading="blnLoading"></TicketTable>
 
-      <Pagination :total-tickets="numTotalTickets" @set-page="fnSetPage"></Pagination>
+      <Pagination :total-data="numTotalTickets" @set-page="fnSetPage"></Pagination>
 
 
     </div>
@@ -56,6 +56,11 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+  layout: 'default1'
+})
+
 import { onMounted } from 'vue';
 import getFetch from '~/fetch/getFetch';
 

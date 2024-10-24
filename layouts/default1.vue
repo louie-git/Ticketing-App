@@ -61,7 +61,7 @@
     </div>
 
     <div class="tablet:pl-64 transition-all ease-in-out duration-500">
-      <div class="p-3">
+      <div class="p-3" >
         <slot />
       </div>
     </div>
@@ -78,7 +78,7 @@
 const showMenu = ref(false)
 const sidebarMenus = ref([
   {
-    link: '/',
+    link: '/dashboard',
     text: 'Home',
     icon: 'house',
     isActive: true
@@ -91,18 +91,24 @@ const sidebarMenus = ref([
 
   },
   {
+    link: '/users',
+    text: 'Users',
+    icon: 'users',
+    isActive: false
+  },
+  {
     link: '/developers',
     text: 'Developers',
     icon: 'code',
     isActive: false
 
   },
-  {
-    link: '/archives',
-    text: 'Archived Tickets',
-    icon: 'box-archive',
-    isActive: false
-  },
+  // {
+  //   link: '/archives',
+  //   text: 'Archived Tickets',
+  //   icon: 'box-archive',
+  //   isActive: false
+  // },
   {
     link: '/account',
     text: 'Account',

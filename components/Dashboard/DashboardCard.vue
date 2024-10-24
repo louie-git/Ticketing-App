@@ -1,10 +1,10 @@
 <template>
-  <div class=" shadow-md rounded-md ">
+  <div class="shadow-md rounded-md ">
     <div class="bg-slate-50 h-10 flex items-center px-2 justify-between  rounded-md">
       <p class="text-base font-semibold">{{ props.title }}</p>
       <p class="px-2 py-1 cursor-pointer text-white bg-blue-950 rounded-md text-xs font-semibold">SEE ALL</p>
     </div>
-    <div class="h-72 desktop:h-72 overflow-y-auto">
+    <div class=" h-60 overflow-y-auto">
       <table class="table-auto w-full ">
         <thead class="bg-slate-200 h-10 text-slate-800 font-semibold sticky top-0 ">
           <tr class="text-sm ">
@@ -14,8 +14,8 @@
           </tr>
         </thead>
         <tbody class="" >
-          <tr class="h-12 text-sm" v-for="ticket in props.data">
-            <td class="px-2">#{{ ticket.ticket_number }}</td>
+          <tr class="h-9 text-sm" v-for="ticket in props.data">
+            <td class="px-2">{{ ticket.ticket_number }}</td>
             <td class="hidden tablet:table-cell">
               <p class=" line-clamp-1  break-all">{{ ticket.submitted_by.full_name }}</p>
             </td>

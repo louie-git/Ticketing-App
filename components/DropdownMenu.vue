@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-56 h-8 border rounded-md bg-white">
+  <div class="relative w-56 h-9 border rounded-md bg-white">
     <div class="h-full w-full flex items-center justify-between" @click="fnToggleDropdown">
       <!-- <p class="px-2 " v-for="(menu,index) in arrMenuData" v-if=" (currentFilter - 1) === index ? 'visible' : 'hidden'">{{menu.name ? menu.name : 'All'}}</p> -->
         <p  class="px-2"> {{ fnDisplayFilterName(currentFilter,arrMenuData) }} </p>
@@ -24,7 +24,16 @@
 <script setup>
 
 
-const props = defineProps(['arrMenuData', 'currentFilter'])
+
+const props = defineProps({
+  arrMenuData: {
+    type: Array,
+    default: []
+  },
+  currentFilter: {
+    type: Number,
+  }
+})
 const emit = defineEmits(['setFilter'])
 
 const strSelectedMenu = ref('')

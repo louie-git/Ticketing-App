@@ -1,8 +1,6 @@
 <template>
-  <div class=" relative h-64 w-full tablet:h-72 laptop:h-80 shadow-md">
-
-    <table class="table-auto w-full shadow-md border" >
-     
+  <div class=" relative h-64 w-full tablet:h-72 laptop:h-80 shadow-md rounded-md ">
+    <table class="table-auto w-full" >
       <thead class="h-12  bg-indigo-950">
         <tr class="text-sm text-slate-100">
           <th class="text-start pl-3 min-w-[80px] px-1">Ticket ID</th>

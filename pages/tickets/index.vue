@@ -2,25 +2,30 @@
   <div class="">
     <PageTitle page-title="Tickets"/>
     
-    <div class="my-5 py-2 px-2 rounded-md text-slate-800 gap-y-2 bg-indigo-50 shadow-md flex flex-col laptop:flex-row laptop:justify-between laptop:items-end">
-      <div class=" flex flex-col  tablet:flex-row gap-3">
-        <div class="flex-col flex items-center tablet:block">
-          <p class="font-semibold">Status</p>
-          <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus" :current-filter="objQuery.status"></DropdownMenu>
-        </div>
-        <div class="flex-col flex items-center tablet:block">
-          <p class="font-semibold">Priority</p>
-          <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="objQuery.priority"></DropdownMenu>
-        </div>
-      </div>
 
-      <form @submit.prevent="fnSearch">
-        <div class="flex justify-between items-center border rounded-md mt-4 w-4/5 self-center tablet:self-auto tablet:mt-0 tablet:w-80 laptop:w-64 desktop:w-80 bg-white">
-          <input class="outline-none py-1 px-2 w-full " type="text" placeholder="Search..." v-model="strSearch">
-          <font-awesome :icon="'magnifying-glass'" class="text-slate-800 text-xl px-2" @click="fnSearch"/>
+
+    <PageHeader>
+      
+      <div class="h-full w-full rounded-md text-slate-800 flex gap-y-2 flex-col laptop:flex-row laptop:justify-between laptop:items-end ">
+        <div class=" flex flex-col  tablet:flex-row gap-3">
+          <div class="flex-col flex items-center tablet:block">
+            <p class="font-semibold">Status</p>
+            <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus" :current-filter="objQuery.status"></DropdownMenu>
+          </div>
+          <div class="flex-col flex items-center tablet:block">
+            <p class="font-semibold">Priority</p>
+            <DropdownMenu :arr-menu-data="arrPriorityMenu" @set-filter="fnSetPriority"  :current-filter="objQuery.priority"></DropdownMenu>
+          </div>
         </div>
-      </form>
-    </div>
+  
+        <form @submit.prevent="fnSearch">
+          <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 mx-auto tablet:max-w-80 tablet:mx-0 w-full">
+            <input class="outline-none py-1 px-2 w-full " type="text" placeholder="Search..." v-model="strSearch">
+            <font-awesome :icon="'magnifying-glass'" class="text-slate-800 text-xl px-2" @click="fnSearch"/>
+          </div>
+        </form>
+      </div>
+    </PageHeader>
 
     <div class="flex justify-end px-2 pb-3">
       <div class="flex w-44 justify-center gap-3 shadow-md px-4 py-1 bg-blue-950 rounded-md font-semibold cursor-pointer text-slate-50 hover:opacity-85 duration-200">
@@ -31,7 +36,7 @@
 
     <TicketTable :arr-tickets="arrTickets" :num-total-tickets="numTotalTickets" :bln-loading="blnLoading"></TicketTable>
 
-    <Pagination :total-tickets="numTotalTickets" :current-page="numCurrentPage" :page-cursor="numPageCursor" @set-page="fnSetPage" ></Pagination>
+    <Pagination :total-data="numTotalTickets" :current-page="numCurrentPage" :page-cursor="numPageCursor" @set-page="fnSetPage" ></Pagination>
 
     <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess"  @closeNotif="()=> blnShowNotif = false"></Notification>
     
@@ -41,10 +46,15 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+  layout: 'default1'
+})
+
 import { onMounted, watch } from 'vue';
 import getFetch from '../fetch/getFetch.js'
 import { status, priority } from '../../helpers/filters.js'
-import { routerKey } from 'vue-router';
+import PageHeader from '../../components/General/PageHeader.vue'
 
 const route = useRoute()
 const config = useRuntimeConfig()

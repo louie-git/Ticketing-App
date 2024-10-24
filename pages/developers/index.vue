@@ -4,8 +4,10 @@
       <PageTitle page-title="Developers"/>
     </div>
 
-    <div class="rounded-md shadow-md mb-5 bg-indigo-50 mt-5 px-2" >
-      <div class="  mt-4 h-16 flex justify-center items-center tablet:justify-end   ">
+
+
+    <PageHeader > 
+      <div class="flex justify-center items-end tablet:justify-end  h-full w-full ">
         <form @submit.prevent="fnSearch">
           <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 tablet:max-w-80 w-full">
             <input class="outline-none py-1 px-2  " type="text" placeholder="Search..." v-model="strSearch">
@@ -13,19 +15,20 @@
           </div>
         </form>
       </div>
-    </div>
+    </PageHeader>
 
     <div class="w-full" v-if="blnLoading">
-      <div class=" p-2 text-slate-800 mt-4  rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:w-4/5 desktop:mx-auto " >
+      <div class=" p-2 text-slate-800 mt-4 rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:gap-2 desktop:mx-auto " >
         <CardSkeleton></CardSkeleton>
         <CardSkeleton></CardSkeleton>
         <CardSkeleton></CardSkeleton>
       </div>
     </div>
 
-    <div  class="flex-1 overflow-auto">
-      <div class="  p-2 text-slate-800 mt-4 rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:gap-2 desktop:mx-auto" >
-        <NuxtLink :to="`/developers/${dev._id}`" v-for="dev in objDevelopers">
+    <div  class="flex-1 overflow-auto" v-else>
+      <p class="text-center" v-if="!arrDevelopers.length">No data to show.</p>
+      <div class="  p-2 text-slate-800 mt-4 rounded-md laptop:grid laptop:grid-cols-2 laptop:gap-3 desktop:grid-cols-3 desktop:gap-2 desktop:mx-auto" v-else>
+        <NuxtLink :to="`/developers/${dev._id}`" v-for="dev in arrDevelopers">
           <DevCard :dev="dev"></DevCard>
         </NuxtLink>
       </div>
@@ -37,15 +40,21 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+  layout: 'default1'
+})
 import getFetch from '~/fetch/getFetch';
 import CardSkeleton from '~/components/Loading/CardSkeleton.vue';
 import DevCard from '~/components/Developers/DevCard.vue';
+import PageHeader from '../../components/General/PageHeader.vue'
+
 import { watch } from 'vue';
 
 const config = useRuntimeConfig()
 const router = useRouter()
 
-const objDevelopers = ref([])
+const arrDevelopers = ref([])
 const objQuery = ref()
 
 const strNotifMessage = ref('')
@@ -74,12 +83,11 @@ const fnFetchData = async() => {
     query
   })
 
-  console.log('thise',)
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/users`,query)
-  console.log(data, message, response_error)
-  console.log(!data)
+  arrDevelopers.value = [] //reset the obj
+
+  const {data, message, response_error} = await getFetch(`${config.public.server_url}/users/developers`,query)
   if(!data) {
     blnShowNotif.value = true
     blnLoading.value = false
@@ -87,7 +95,7 @@ const fnFetchData = async() => {
     blnRequestSuccess.value = false
     return
   }
-  objDevelopers.value = data
+  arrDevelopers.value = data
   blnLoading.value = false
 }
 

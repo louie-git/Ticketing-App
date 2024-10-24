@@ -13,6 +13,10 @@ const status = [
     item_id: 3,
     name: 'Completed'
   },
+  {
+    item_id: 4,
+    name: 'Deleted'
+  }
 ]
 
 const priority = [
