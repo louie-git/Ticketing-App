@@ -171,11 +171,7 @@ const objUserDetails = ref({
   last_name: '',
   password: '',
   confirm_password: ''
-  // email: 'vincentla@meditab.com',
-  // first_name: 'Vincent Louie',
-  // last_name: 'Arrabis',
-  // password: 'asdfAsdf!?',
-  // confirm_password: 'asdfAsdf!?'
+
 })
 
 const objUserDetailsVerified = ref({
