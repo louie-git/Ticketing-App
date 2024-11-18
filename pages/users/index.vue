@@ -1,14 +1,10 @@
 <template>
-  <div>
+  <div class="flex flex-col h-[91vh]">
     <PageTitle page-title="Users"/>
 
 
-
-
-
-
     <PageHeader>
-        <div class="h-full w-full flex justify-center items-end tablet:justify-end">
+        <div class="h-full w-full flex justify-center items-end tablet:justify-end ">
           <form @submit.prevent="fnSearch">
             <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 tablet:max-w-80 w-full">
               <input class="outline-none py-1 px-2  " type="text" placeholder="Search..." v-model="strSearch">
@@ -18,25 +14,7 @@
         </div>
     </PageHeader>
 
-
-
-
-
     <div class="">
-<!-- 
-      <div class="mt-5">
-        <p class="text-lg font-semibold">Invite Developer</p>
-        <form @submit.prevent="createUser">
-          <div class="">
-            <input class="block mb-2" type="text" placeholder="Enter Email" v-model="user.email">
-            <input class="block mb-2" type="text" placeholder="First Name" v-model="user.first_name">
-            <input class="block mb-2" type="text" placeholder="Last Name" v-model="user.last_name">
-            <input class="bg-indigo-950 hover:opacity-80 p-2 rounded-md text-white transition-all duration-300" type="submit" value="Invite">
-          </div>
-        </form>
-      </div> -->
-  
-
 
       <div class="relative h-64 w-full tablet:h-72 laptop:h-80 shadow-md overflow-hidden rounded-md">
         <table class="w-full border table-fixed" >
@@ -59,7 +37,9 @@
               <td class=" text-start pl-3 overflow-hidden text-ellipsis ">{{ user.email }}</td>
               <td class="hidden text-start tablet:table-cell overflow-hidden text-ellipsis">{{ user.designation }}</td>
               <td class="hidden text-star laptop:table-cell">{{ user.createdAt }}</td>
-              <td class="text-start">{{ user.status }}</td>
+              <td class="text-xs font-semibold" >
+                <span class="px-2 py-1 rounded" :class="user.status.key === 0 ? 'bg-red-50 text-red-500': 'bg-green-50 text-green-500'">{{ user.status.name }}</span>
+              </td>
               <td class="text-center">
                 <font-awesome :icon="'eye'" class="text-slate-800 cursor-pointer text-lg px-2" @click="fnShowModal(user)"/>
               </td>
@@ -78,11 +58,11 @@
   
       </div>
 
-      <UserDetailsModal v-if="blnShowModal" :obj-user-details="objUserDetails" @close-modal="blnShowModal = false" @user-update="fnUserUpdate"></UserDetailsModal>
+      <UserDetailsModal v-if="blnShowModal" :arr-designations="arrDesignations" :obj-user-details="objUserDetails" @close-modal="blnShowModal = false" @user-update="fnUserUpdate"></UserDetailsModal>
 
       <Pagination :total-data="numTotalUsers" :current-page="numCurrentPage" :page-cursor="numPageCursor" @set-page="fnSetPage" ></Pagination>
 
-      <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess" @closeNotif="()=> blnShowNotif = false"></Notification>
+      <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success" @closeNotif="()=> objNotif.show = false"></Notification>
     </div>
 
 
@@ -92,23 +72,20 @@
 
 <script setup>
 
-import getFetch from '../../fetch/getFetch'
 import UserDetailsModal from '../../components/Users/UserDetailsModal.vue'
 import PageHeader from '../../components/General/PageHeader.vue'
+import fetch from '../../api/fetch'
 
 definePageMeta({
-  layout: 'default1'
+  middleware: ['auth'],
+  layout: 'main-layout'
 })
 
 const route = useRoute()
 
-
-const blnShowNotif = ref(false)
 const blnLoading = ref(false)
-const blnRequestSuccess = ref()
 const blnShowModal = ref(false)
 
-const strNotifMessage = ref('')
 const strSearch = ref('')
 
 const numCurrentPage = ref(1)
@@ -117,20 +94,41 @@ const numTotalUsers = ref(0)
 
 const objQuery = ref({})
 const objUserDetails = ref({})
+const objNotif = ref({
+  show: false,
+  message: '',
+  success: false
+})
 
 const arrUsers = ref([])
+const arrDesignations = ref([])
 
 const config = useRuntimeConfig()
 
-
 console.log(`${config.public.server_url}/users`)
 
+const fnShowErrorNotif = (message) => {
+  console.log('erer')
+  objNotif.value = {
+    show: true,
+    message,
+    success: false
+  }
+  blnLoading.value = false
 
-const fnShowModal = (user) => {
-  objUserDetails.value = user
-  blnShowModal.value = true
-  
 }
+
+
+//emits functions
+const fnUserUpdate = (response) => {
+  objNotif.value = {
+    show : true,
+    message: response.message,
+    success: response.success
+  }
+  fnFetchData()
+}
+
 
 const fnSetPage = (page,cursor) => {
   console.log('dev',page,cursor)
@@ -138,6 +136,13 @@ const fnSetPage = (page,cursor) => {
   numPageCursor.value = cursor
   fnFetchData()
 }
+//end emits
+
+const fnShowModal = (user) => {
+  objUserDetails.value = user
+  blnShowModal.value = true
+}
+
 
 const fnSearch = () => fnFetchData()
 
@@ -153,13 +158,6 @@ const fnSetPageQuery = () => {
 }
 
 
-const fnUserUpdate = (response) => {
-  blnShowNotif.value = true
-  strNotifMessage.value = response.message
-  blnRequestSuccess.value = response.success
-  fnFetchData()
-}
-
 const fnFetchData = async () => {
 
   if(strSearch.value !== '') objQuery.value.search = strSearch.value
@@ -172,19 +170,27 @@ const fnFetchData = async () => {
   })
 
   blnLoading.value = true
-  const {data, message} = await getFetch(`${config.public.server_url}/users`, objQuery.value)
-  if (!data) {
-    blnShowNotif.value = true
-    blnLoading.value = false
-    strNotifMessage.value = message
-    blnRequestSuccess.value = false
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/users`, objQuery.value)
+  if (error_response) {
+    fnShowErrorNotif(error_response)
+    return
   }
   arrUsers.value = data.users
   numTotalUsers.value = data.total_users
   blnLoading.value = false
 }
 
+const fnGetDesignations = async () => {
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/designations/active`)
+  if(error_response) {
+    fnShowErrorNotif(error_response)
+    return
+  }
+  arrDesignations.value = data
+}
+
 onMounted(() => {
+  fnGetDesignations()
   fnSetPageQuery()
 })
 

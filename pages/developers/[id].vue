@@ -36,8 +36,6 @@
           <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"  :current-filter="objQuery.status"></DropdownMenu>
           <!-- <DropdownMenu :arr-menu-data="arrStatusMenu" @set-filter="fnSetStatus"></DropdownMenu> -->
 
-
-
         </div>
         <div class="flex-col flex items-center tablet:block">
           <p>Priority</p>
@@ -58,7 +56,7 @@
 <script setup>
 
 definePageMeta({
-  layout: 'default1'
+  layout: 'main-layout'
 })
 
 import { onMounted } from 'vue';

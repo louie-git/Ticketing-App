@@ -18,26 +18,26 @@
       </div>
 
       <div class="grid tablet:grid-cols-2 gap-2 dark">
-        <DashboardCard  title="Completed Recently" :data="arrCompletedTickets"/>
-        <DashboardCard  title="In-progress" :data="arrInprogressTickets"/>
+        <DashboardCard  title="Completed Recently" :data="arrCompletedTickets" :link="'/tickets?status=3'"/>
+        <DashboardCard  title="In-progress" :data="arrInprogressTickets" :link="'/tickets?status=2'"/>
 
       </div>
     </div>
 
+    <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success"  @closeNotif="()=> objNotif.show = false"></Notification>
 
   </div>
 </template>
 
 <script setup>
-
 definePageMeta({
-  layout: 'default1'
+  middleware: ['auth'],
+  layout: 'main-layout'
 })
 
-import getFetch from '../fetch/getFetch.js'
+import fetch from '../api/fetch'
 import DashboardCard from '../components/Dashboard/DashboardCard.vue'
 const config = useRuntimeConfig()
-
 
 const arrCompletedTickets = ref([])
 const arrInprogressTickets = ref([])
@@ -46,11 +46,29 @@ const numPendingCount = ref(0)
 const numCompletedCount = ref(0)
 const numInprogressCount = ref(0)
 const arrDashboardCards = ref([])
+const objNotif = ref({
+  show: false,
+  message: '',
+  success: false
+})
+
+
+const fnShowNotif = (message) => {
+  objNotif.value = {
+    show: true,
+    message: message,
+    success: false
+  }
+  blnLoading.value = false
+}
 
 const fnFetchData = async () => {
-  console.log('here')
   try {
-    const {data, message, response_error} = await getFetch(`${config.public.server_url}/tickets/dashboard`)
+    const {data, error_response} = await fetch.get(`${config.public.server_url}/tickets/dashboard`)
+    if(error_response) {
+      fnShowNotif(error_response)
+      return
+    }
     arrCompletedTickets.value = data.completed
     arrInprogressTickets.value = data.inprogress
     numTotalTickets.value = data.total_tickets
@@ -85,18 +103,16 @@ const fnFetchData = async () => {
       }
     ]
 
-
   } catch (error) {
     console.log('errlr',error)
+    fnShowNotif('Error while fetching data.')
   }
 
 }
 
-
-
 onMounted( async() => {
+  console.log('her')
   fnFetchData()
-
 })
 </script>
 

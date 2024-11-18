@@ -38,8 +38,7 @@
 
     <Pagination :total-data="numTotalTickets" :current-page="numCurrentPage" :page-cursor="numPageCursor" @set-page="fnSetPage" ></Pagination>
 
-    <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess"  @closeNotif="()=> blnShowNotif = false"></Notification>
-    
+    <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success"  @closeNotif="()=> objNotif.show = false"></Notification>
 
 
   </div>
@@ -48,35 +47,54 @@
 <script setup>
 
 definePageMeta({
-  layout: 'default1'
+  middleware:['auth'],
+  layout: 'main-layout'
 })
 
+import fetch from '../../api/fetch'
 import { onMounted, watch } from 'vue';
-import getFetch from '../fetch/getFetch.js'
 import { status, priority } from '../../helpers/filters.js'
 import PageHeader from '../../components/General/PageHeader.vue'
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const arrTickets = ref([])
+
 const blnLoading = ref(true)
-const blnShowNotif = ref(false)
-const strNotifMessage = ref('')
-const blnRequestSuccess = ref()
+
 const numTotalTickets = ref(0)
 const numCurrentPage = ref(1)
-const numPageLimit = ref(5)
 const numPageCursor = ref(0)
-const numPaginationLimit = ref(5)
+
+const arrTickets = ref([])
 const arrStatusMenu = ref(status)
 const arrPriorityMenu = ref(priority)
-const strStatusFilter = ref('')
-const strPriorityFilter = ref('')
+
 const strSearch = ref('')
+
 const objQuery = ref({})
+const objNotif = ref({
+  show:false,
+  message: '',
+  success: false
+})
 
 
-//Set Filter Function
+const fnShowNotif = (message) => {
+  objNotif.value = {
+    show: true,
+    message,
+    success: false
+  }
+  blnLoading.value = false
+}
+
+//emits functions
+const fnSetPage = (page,cursor) => {
+  numCurrentPage.value = page
+  numPageCursor.value = cursor
+  fnFetchData()
+}
+
 const fnSetStatus = (status) => {
   if(status === 'All') delete objQuery.value.status
   else objQuery.value.status = status
@@ -92,6 +110,8 @@ const fnSetPriority = (priority) => {
   numCurrentPage.value = 1
   fnFetchData()
 }
+//end emits
+
 
 const fnSearch = () => {
   numCurrentPage.value = 1
@@ -99,12 +119,6 @@ const fnSearch = () => {
   strSearch.value && fnFetchData()
 }
 
-const fnSetPage = (page,cursor) => {
-  console.log('dev',page,cursor)
-  numCurrentPage.value = page
-  numPageCursor.value = cursor
-  fnFetchData()
-}
 
 const fnSetPageQuery = () => {
   route.query.status && (objQuery.value.status = route.query.status)
@@ -119,32 +133,25 @@ const fnSetPageQuery = () => {
 }
 
 
+
+
 //Fetch Data
 const fnFetchData = async() => {
 
-
-  console.log('str valu',strSearch.value)
   if(strSearch.value !== '') objQuery.value.search = strSearch.value
   else delete objQuery.value.search
   objQuery.value.page =  numCurrentPage.value + numPageCursor.value
 
-  console.log('here',objQuery.value)
   navigateTo({
     path: '/tickets',
     query: objQuery.value
   })
 
-  console.log('request', numCurrentPage.value + numPageCursor.value)
-
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/tickets`,objQuery.value)
-  console.log(data, message, response_error)
-  console.log(!data)
-  if(!data) {
-    blnShowNotif.value = true
-    blnLoading.value = false
-    strNotifMessage.value = message
-    blnRequestSuccess.value = false
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/tickets`,objQuery.value)
+  if(error_response) {
+    console.log('error notif', error_response)
+    fnShowNotif(error_response)
     return
   }
   arrTickets.value = [...data.tickets]

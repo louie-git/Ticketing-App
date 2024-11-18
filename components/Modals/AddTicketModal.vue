@@ -58,6 +58,7 @@
 <script setup>
 
 import Modal from '../components/General/Modal.vue'
+import fetch from '../../api/fetch'
 
 const emit = defineEmits(['close-modal','notification'])
 
@@ -68,6 +69,8 @@ const props = defineProps({
   }
 })
 
+
+const config = useRuntimeConfig()
 
 const ticket = ref({})
 
@@ -140,36 +143,25 @@ const fnRemoveImg = (index) => {
 
 const submitTicket = async () => {
 
+  console.log(ticket.value)
+  const {response, error_response} = await fetch.post(`${config.public.server_url}/tickets`,ticket.value)
+  if(error_response) {
+    emit('notification', {
+      showNotif: true ,
+      notifMessage: error_response,
+      requestSuccess: false
+    })
+    emit('close-modal')
 
-try {
-  const res = await fetch('http://localhost:8001/api/tickets',{ 
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(ticket.value)
-  })
-  if( res.status !== 200 ) throw ({name: 'Response', message: 'Failed to create ticket'})
-  const data = await res.json()
-  console.log(data)
-  blnShowNotif.value = true
-  strNotifMessage.value = data.message
-  blnRequestSuccess.value = true
-
-} catch (error) {
-  console.log(error)
-  blnShowNotif.value = true
-  blnRequestSuccess.value = false
-  strNotifMessage.value = 'Error while posting ticket.'
-} finally  {
-  console.log('here')
+    return 
+  }
   emit('notification', {
-    showNotif: blnShowNotif.value,
-    notifMessage: strNotifMessage.value,
-    requestSuccess: blnRequestSuccess.value
+    showNotif: true ,
+    notifMessage: response,
+    requestSuccess: true
   })
   emit('close-modal')
-}
+
 }
 
 

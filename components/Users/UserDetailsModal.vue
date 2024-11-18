@@ -77,14 +77,17 @@
 <script setup>
 import Modal from '../../components/General/Modal.vue'
 import Dropdown from '../../components/General/Dropdown.vue'
-
-
+import fetch from '../../api/fetch'
 
 const emit = defineEmits(['close-modal','user-update'])
 const props = defineProps({
   objUserDetails: {
     type : Object,
     default : {}
+  },
+  arrDesignations: {
+    type: Array,
+    default: []
   }
 })
 
@@ -100,35 +103,22 @@ const intDesignationKey = ref()
 const objUserDetails = ref(props.objUserDetails)
 const objUpdateResponse = ref({})
 
-const strStatus = ref(props.objUserDetails.status)
+const strStatus = ref(props.objUserDetails.status.name)
 const strDesignation = ref(props.objUserDetails.designation)
 
 const arrStatusOpt = ref([
   {
-    name: 'Pending',
+    name: 'Inactive',
     key: 0
   },
   {
-    name: 'Confirmed',
+    name: 'Active',
     key: 1
   }
 ])
 
 
-const arrDesignations = ref([
-  {
-    name: 'Back-end Developer',
-    key: 0
-  },
-  {
-    name: 'Front-end Developer',
-    key: 1
-  },
-  {
-    name: 'User',
-    key: 1
-  }
-])
+const arrDesignations = ref(props.arrDesignations)
 
 const fnSetStatus = (data) => {
   strStatus.value = data.name
@@ -144,37 +134,34 @@ const fnSetDesignation = (data) => {
 
 const fnCancelEdit = () => {
   blnShowEditOpt.value = false
-  strStatus.value = props.objUserDetails.status
+  strStatus.value = props.objUserDetails.status.name
   strDesignation.value = props.objUserDetails.designation
-
 }
-
 
 const fnUpdate = async () => {
-  blnLoading.value = true
-  try {
-    let res = await $fetch(`${config.public.server_url}/users/${props.objUserDetails._id}/update`, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        status: intStatusKey.value
-      })
-    })
-    objUpdateResponse.value.message = res.message
-    objUpdateResponse.value.success = true
+  console.log('dsfd', intDesignationKey.value)
+  console.log('fsdf', intStatusKey.value)
+  // return
 
-  } catch (error) {
-    objUpdateResponse.value.message = error.data.message
+  const body = {status: intStatusKey.value, designation: intDesignationKey.value}
+  
+  blnLoading.value = true
+  const {response , error_response} = await fetch.post(`${config.public.server_url}/users/${props.objUserDetails._id}/status`, body)
+  if(error_response) {
+    objUpdateResponse.value.message = error_response
     objUpdateResponse.value.success = false
-  } finally {
-    blnLoading.value = false
-    emit('user-update', objUpdateResponse.value)
-    emit('close-modal')
+    return
   }
 
+  objUpdateResponse.value.message = response
+  objUpdateResponse.value.success = true
+  blnLoading.value = false
+  emit('user-update', objUpdateResponse.value)
+  emit('close-modal')
+
 }
+
+
 
 </script>
 

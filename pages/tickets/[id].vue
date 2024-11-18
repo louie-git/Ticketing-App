@@ -1,77 +1,65 @@
 <template>
-  <div class="">
+  <div class="text-gray-500">
     <PageTitle :page-title="router.currentRoute.value.params.id" :ret-btn="true"/>
 
 
-    <div class="rounded-md shadow-md mb-5 bg-indigo-50 mt-5 px-2" >
+    <!-- <div class="rounded-md shadow-md mb-5 bg-indigo-50 mt-5 px-2" >
       <div class="mt-4 h-16 flex justify-center items-center tablet:justify-end   ">
-        <!-- <form @submit.prevent="fnSearch">
+        <form @submit.prevent="fnSearch">
           <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 tablet:max-w-80 w-full">
             <input class="outline-none py-1 px-2  " type="text" placeholder="Search..." v-model="strSearch">
             <font-awesome :icon="'magnifying-glass'" class="text-slate-800 text-xl px-2" @click="fnSearch"/>
           </div>
-        </form> -->
+        </form>
       </div>
-    </div>
-    <div class="relative text-slate-800 mt-2 p-2 laptop:grid laptop:grid-cols-2 gap-x-3">
+    </div> -->
+
+    <!-- <PageHeader>
+      
+    </PageHeader> -->
+
+    <!-- <div class="relative mt-2 laptop:grid laptop:grid-cols-2 gap-x-3"> -->
+
+    <div class="relative w-full laptop:w-[40rem] mt-5">
 
       <TicketCardSkeleton v-if="blnLoading"></TicketCardSkeleton>
       
-      <div class=" p-2 rounded-md shadow-md border" v-else>
+      <div class=" p-3 rounded-md shadow-md border" v-else>
         <p class="text-xl font-bold">{{ objTicket.category ? objTicket.category : '--' }}</p>
         <div class="flex items-center gap-2 my-2">
           <div class="h-16 w-16 border-4 border-indigo-950 rounded-full" v-if="objTicket.submitted_by.image" >
               <img src="" alt="user image"  class="object-cover h-full w-full rounded-full">
               <!-- <img v-else  class="object-cover h-full w-full rounded-full" src="~assets/images/cat1.jpg" alt=""> -->
           </div>
-
           <font-awesome v-else :icon="'user'" class="rounded-full w-8 h-8 p-3 border-indigo-950 border-4" />
-
           <div class="">
             <p class="font-bold">{{ objTicket.submitted_by.full_name }}</p>
             <p>{{objTicket.submitted_by.email}}</p>
           </div>
         </div>
 
-        <div class="flex gap-2 my-2">
-          <p class="font-bold">Date posted: </p>
-          <p>{{ objTicket.createdAt }}</p>
-        </div> 
+        <div class="grid grid-cols-5 mb-2 min-h-28">  
 
-        <div class="flex gap-2 my-2">
-          <p class="font-bold">Status: </p>
-          <p class="px-2 rounded-md font-semibold">{{ fnDisplayStatus(strTicketStatus) }}</p>
-          <div class="relative" v-if="blnShowEditOpt">
-            <button>
-              <font-awesome :icon="'pencil'" class="border p-0.5 rounded text-xs border-slate-400 text-slate-500 cursor-pointer" @click="fnToggleStatusOpt"/>
-            </button>
-            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowStatusOpt" >
-              <div class=" w-28 px-2 py-1 transition-colors duration-300 cursor-pointer" 
-              :class="strTicketStatus === menu.item_id ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
-              v-for="(menu,index) in arrStatusMenu" 
-              @click="fnSetStatus(menu.item_id)">
-                <p>{{ menu.name }}</p>
-              </div>
+          <div class="col-span-2 font-bold grid grid-rows-3 gap-2">
+            <p>Date posted: </p>
+            <p>Status: </p>
+            <p>Priority: </p>
+          </div>
+
+          <div class="col-span-3 grid grid-rows-3 gap-2">
+            <p>{{ objTicket.createdAt }}</p>
+            <div>
+              <Dropdown :options="arrStatusMenu" :current-value="objTicket.status" v-if="blnShowEditOpt" @update="fnSetStatus"/>
+              <p v-else>{{ objTicket.status }}</p>
+            </div>
+            <div>
+              <Dropdown :options="arrPriorityMenu" :current-value="objTicket.priority" v-if="blnShowEditOpt" @update="fnSetPriority"/>
+              <p v-else>{{ objTicket.priority }}</p>
             </div>
           </div>
+
         </div>
-        <div class="flex gap-2 my-2">
-          <p class="font-bold">Priority: </p>
-          <p class="px-2 rounded-md font-semibold">{{ fnDisplayPriority(strTicketPriority) }}</p>
-          <div class="relative" v-if="blnShowEditOpt">
-            <button>
-              <font-awesome :icon="'pencil'" class="border p-0.5 rounded text-xs border-slate-400 text-slate-500 cursor-pointer" @click="fnTogglePriorityOpt"/>
-            </button>
-            <div class="z-10 absolute  border text-sm rounded-md bg-white overflow-hidden" v-if="blnShowPriorityOpt" >
-              <div class=" w-28 px-2 py-1  transition-colors duration-300 cursor-pointer" 
-              :class="strTicketPriority === menu.item_id ? 'bg-indigo-600 text-white': 'hover:bg-indigo-50'"
-              v-for="(menu,index) in arrPriorityMenu" 
-              @click="fnSetPriority(menu.item_id)">
-                <p>{{ menu.name }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+
         <div class="">
           <p class="font-bold">Description</p>
           <p>{{ objTicket.description }}</p>
@@ -138,9 +126,9 @@
 
 
       <!-- Message section -->
-      <div class="my-5 laptop:my-0 h-auto ">
-        <div class="flex my-2 text-white font-medium gap-1">
-          <button class="
+      <!-- <div class="my-5 laptop:my-0 h-auto ">
+        <div class="flex text-white font-medium gap-1"> -->
+          <!-- <button class="
           px-3 
           py-1 
           rounded-md 
@@ -152,19 +140,15 @@
           :class="btn.isActive ? 'bg-indigo-950 hover:bg-indigo-950/70': 'bg-none text-black hover:bg-gray-100 '" 
           v-for="(btn, index) in arrActionBtns"
           @click="fnActiveBtn(index)"
-          >{{ btn.name }}</button>
-        </div>
+          >{{ btn.name }}</button> -->
+        <!-- </div> -->
 
-        <ChatBox title="Reply" v-if="arrActionBtns[0].isActive"/>
-        <ChatBox title="Notes" v-else/>
-        
-
-
-      </div>
+        <!-- <ChatBox title="Reply" :messages="objTicket.messages" :ticket-id="objTicket._id"/> -->
+        <!-- <ChatBox title="Notes" v-else/> -->
+      <!-- </div> -->
 
     </div>
-
-    <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess" @closeNotif="()=> blnShowNotif = false"></Notification>
+    <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success" @closeNotif="()=> objNotif.show = false"></Notification>
     <ImageModal v-if="blnToggleImageModal" :image="strImage" @toggle-modal="fnCloseModal"></ImageModal>
     
    
@@ -177,72 +161,75 @@ definePageMeta({
   layout: 'default1'
 })
 
+import fetch from '../../api/fetch'
+import Dropdown from '../../components/General/Dropdown.vue'
+import { status, priority } from '../../helpers/filters.js'
 import { onMounted } from 'vue';
 import TicketCardSkeleton from '~/components/Loading/TicketCardSkeleton.vue';
 import ImageModal from '~/components/Modals/ImageModal.vue';
 import getFetch from '../../fetch/getFetch.js'
+import PageHeader from '../../components/General/PageHeader.vue'
 import ChatBox from '../../components/Ticket/ChatBox.vue'
 
 
 const router = useRouter()
 const config = useRuntimeConfig()
 
-const objTicket = ref({submitted_by: {}})
 
 const strTicketStatus = ref()
 const strTicketPriority = ref()
-const strNotifMessage = ref('')
 const strImage = ref('')
 
-const arrStatusMenu = ref([])
-const arrPriorityMenu = ref([])
+const arrStatusMenu = ref(status)
+const arrPriorityMenu = ref(priority)
 const arrDevNames = ref()
 const arrNewAssignedDevID = ref()
+const arrAssignedDev = ref([])
 const arrImages = ref(['cat1.jpg', 'cat2.jpg', 'cat3.jpg'])
 
 const blnLoading = ref(false)
 const blnEditLoading = ref(false)
-const blnShowStatusOpt = ref(false)
-const blnShowPriorityOpt = ref(false)
+
 const blnShowDevelopers = ref(false)
 const blnShowEditOpt = ref(false)
-const blnShowNotif = ref(false)
-const blnRequestSuccess = ref()
 const blnToggleImageModal = ref(false)
 
-const numActiveStatus = ref()
-const numActivePriority = ref()
-const strStatus = ref('')
+const intStatusKey = ref()
+const intPriorityKey = ref()
 
-const arrAssignedDev = ref([])
-const arrActionBtns = ref([
-  {
-    name: 'Reply',
-    isActive: true
-  },
-  {
-    name: 'Add Note',
-    isActive: false
-  }
-])
+const objTicket = ref({submitted_by: {}})
+const objNotif = ref({
+  show: false,
+  message: '',
+  success: false
+})
 
 
 console.log(router.currentRoute.value.params.id)
 
-const fnToggleStatusOpt = () =>  blnShowStatusOpt.value = !blnShowStatusOpt.value
+const fnShowNotif = (message,success = false) => {
+  objNotif.value = {
+    show: true,
+    message,
+    success
+  }
+  blnLoading.value = false
+}
 
-const fnTogglePriorityOpt = () =>  blnShowPriorityOpt.value = !blnShowPriorityOpt.value
+
 
 const fnToggleDevNamesOpt = () => blnShowDevelopers.value = !blnShowDevelopers.value
 
-const fnSetStatus = (id) => {
-  blnShowStatusOpt.value = false
-  strTicketStatus.value = id
+const fnSetStatus = (data) => {
+
+  intStatusKey.value = data.item_id
+  objTicket.value.status = data.name
 } 
 
-const fnSetPriority = (id) => {
-  blnShowPriorityOpt.value = false
-  strTicketPriority.value = id
+const fnSetPriority = (data) => {
+
+  intPriorityKey.value = data.item_id
+  objTicket.value.priority = data.name
 }
 
 const fnAssignDev = (dev) => {
@@ -263,25 +250,6 @@ const fnCheckId = (id) => {
   return assignedDevId.includes(id) ? true : false
 }
 
-const fnDisplayStatus = (status_id) => {
-  let text = '--'
-  arrStatusMenu.value.forEach((status) => {
-    if(status.item_id === status_id) {
-      text = status.name
-    }
-  })
-  return text
-}
-
-const fnDisplayPriority = (priority_id) => {
-  let text = '--'
-  arrPriorityMenu.value.forEach((priority) => {
-    if(priority.item_id === priority_id) {
-      text = priority.name
-    }
-  })
-  return text
-}
 
 const fnCancelEdit = () => {
   blnShowEditOpt.value = false
@@ -297,80 +265,56 @@ const fnImageModal = (image) => {
 
 const fnCloseModal = () => blnToggleImageModal.value = false
 
-const fnActiveBtn = (btnIndex) => {
-  arrActionBtns.value = arrActionBtns.value.map((btn, index) => {
-    index === btnIndex ? btn.isActive = true : btn.isActive = false
-    return btn
-  })
-}
+
 
 
 const fnUpdateTicket = async () => {
   blnEditLoading.value = true
-  try {
-    const res = await $fetch(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`,{
-      method: 'POST',
-      headers :{
-        'Content-Type' : 'application/json'
-      },
-      body: JSON.stringify({
-        status: strTicketStatus.value,
-        priority: strTicketPriority.value,
-        assignee: arrNewAssignedDevID.value
-      })
-    })
-    blnEditLoading.value = false
-    blnShowNotif.value = true
-    strNotifMessage.value = res.message
-    blnRequestSuccess.value = true
-  } catch (error) {
-    blnEditLoading.value = false
-    blnShowNotif.value = true
-    blnRequestSuccess.value = false
-    strNotifMessage.value = 'Error while updating ticket. Please contact IT support. '
+  const {response, error_response} = await fetch.post(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`, {
+    status: intStatusKey.value,
+    priority:  intPriorityKey.value,
+    assignee: arrNewAssignedDevID.value
+  })
+
+  if( error_response ) {
+    fnShowNotif(error_response)
+    return
   }
+  fnShowNotif(response, true)
+  blnEditLoading.value = false
   blnShowEditOpt.value = false
-}
 
-
-// Fetch Functions
-const fnFetchStatus = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/status`)
-  arrStatusMenu.value = data
-}
-
-const fnFetchPriorities = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/priorities`)
-  arrPriorityMenu.value = data
 }
 
 //Fetch developers
 const fetchUserData = async () => { 
-  const { data } = await getFetch(`${config.public.server_url}/users`)
+  const { data,error_response } = await fetch.get(`${config.public.server_url}/users/developers`)
+  if(error_response) {
+    fnShowNotif(error_response)
+    return
+  }
   arrDevNames.value = data
   console.log(data)
 }
 
-onMounted(async () => {
-  console.log('run heree')
+const fnFetchData = async () => {
 
   blnLoading.value = true
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`)
-  if(response_error.status) {
-    console.log('error')
-    blnShowNotif.value = true
-    blnLoading.value = false
-    strNotifMessage.value = message
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`)
+  if(error_response) {
+    fnShowNotif(error_response)
+    return
   }
+  console.log('this is dat',data)
   objTicket.value = {...data}
-  strTicketStatus.value = data.status
-  strTicketPriority.value = data.priority
   arrAssignedDev.value = [...data.assignee]
   blnLoading.value = false
   arrNewAssignedDevID.value = arrAssignedDev.value.map(dev => dev._id)
-   
-  await fnFetchStatus()
-  await fnFetchPriorities()
+
+}
+
+onMounted(async () => {
+  await fnFetchData()
   await fetchUserData()
 
 })

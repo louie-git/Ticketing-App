@@ -23,11 +23,12 @@
 <script setup>
 
 definePageMeta({
-  layout: 'default1'
+  middleware: ['auth'],
+  layout: 'main-layout'
 })
 
 import AddTicketModal from '../components/Modals/AddTicketModal.vue'
-import getFetch from '../../fetch/getFetch.js'
+import fetch from '../api/fetch'
 
 
 
@@ -43,7 +44,7 @@ const arrCategories = ref([])
 const fnNotification = (response) => {
   
   console.log('fs', response)
-  blnShowNotif.value = true
+  // blnShowNotif.value = true
   blnShowNotif.value = response.showNotif
   strNotifMessage.value = response.notifMessage
   blnRequestSuccess.value = response.requestSuccess
@@ -54,13 +55,16 @@ const toggleForm = () =>  {
   blnShowTicketModal.value ?  addTicketText.value ='Add Ticket' : addTicketText.value = 'Close'
 }
 
-
 const fnFetchCategories = async () => {
-  console.log('sdf')
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/categories`)
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/categories/active`)
+  if(error_response) {
+    fnNotification({
+      showNotif : true,
+      notifMessage: error_response,
+      requestSuccess: false
+    })
+  }
   arrCategories.value = data
-  console.log(data)
-  console.log(arrCategories)
 }
 
 onMounted(() => {

@@ -1,10 +1,10 @@
 <template>
-  <default1>
+  <main-layout>
     <div>
       hello
     </div>
 
-  </default1>
+  </main-layout>
 </template>
 
 <script setup>

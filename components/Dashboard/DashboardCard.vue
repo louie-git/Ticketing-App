@@ -2,7 +2,9 @@
   <div class="shadow-md rounded-md ">
     <div class="bg-slate-50 h-10 flex items-center px-2 justify-between  rounded-md">
       <p class="text-base font-semibold">{{ props.title }}</p>
-      <p class="px-2 py-1 cursor-pointer text-white bg-blue-950 rounded-md text-xs font-semibold">SEE ALL</p>
+      <NuxtLink :to="props.link">
+        <p class="px-2 py-1 cursor-pointer text-white bg-blue-950 rounded-md text-xs font-semibold">SEE ALL</p>
+      </NuxtLink>
     </div>
     <div class=" h-60 overflow-y-auto">
       <table class="table-auto w-full ">
@@ -38,7 +40,7 @@ const props = defineProps({
     },
     link: {
       type: String,
-      default: '--'
+      default: '/dashboard'
     },
     data: {
       type: Array

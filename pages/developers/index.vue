@@ -1,13 +1,9 @@
 <template>
   <div class="flex flex-col h-[91vh]">
-    <div class="  tablet:flex tablet:justify-between">
-      <PageTitle page-title="Developers"/>
-    </div>
-
-
+    <PageTitle page-title="Developers"/>
 
     <PageHeader > 
-      <div class="flex justify-center items-end tablet:justify-end  h-full w-full ">
+      <div class="flex justify-center items-end tablet:justify-end h-full w-full ">
         <form @submit.prevent="fnSearch">
           <div class="flex justify-between items-center border rounded-md h-10 bg-white max-w-96 tablet:max-w-80 w-full">
             <input class="outline-none py-1 px-2  " type="text" placeholder="Search..." v-model="strSearch">
@@ -34,7 +30,7 @@
       </div>
     </div>
 
-    <Notification v-if="blnShowNotif" :message="strNotifMessage" :is-success="blnRequestSuccess"  @closeNotif="()=> blnShowNotif = false"></Notification>
+    <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success"  @closeNotif="()=> objNotif.show = false"></Notification>
 
   </div>
 </template>
@@ -42,9 +38,10 @@
 <script setup>
 
 definePageMeta({
-  layout: 'default1'
+  middleware:['auth'],
+  layout: 'main-layout'
 })
-import getFetch from '~/fetch/getFetch';
+import fetch from '../../api/fetch'
 import CardSkeleton from '~/components/Loading/CardSkeleton.vue';
 import DevCard from '~/components/Developers/DevCard.vue';
 import PageHeader from '../../components/General/PageHeader.vue'
@@ -52,56 +49,56 @@ import PageHeader from '../../components/General/PageHeader.vue'
 import { watch } from 'vue';
 
 const config = useRuntimeConfig()
-const router = useRouter()
 
 const arrDevelopers = ref([])
-const objQuery = ref()
 
-const strNotifMessage = ref('')
 const strSearch = ref('')
 
 const blnLoading = ref(false)
-const blnRequestSuccess = ref()
-const blnShowNotif = ref(false)
 
 
-watch(strSearch,(search, prevChar) => {
-
-  if(search === '' && prevChar !== ' ') fnFetchData()
-  // search === '' && fnFetchData()
+const objNotif = ref({
+  show: false,
+  message: '',
+  success: false
 })
+
+
+const fnShowNotif = (message) => {
+  objNotif.value = {
+    show: true,
+    message: message,
+    success: false
+  }
+  blnLoading.value = false
+}
 
 
 const fnSearch = () => fnFetchData()
 
 const fnFetchData = async() => {
-
   const query = strSearch.value ? {search: strSearch.value} : {}
-
   navigateTo({
     path: '/developers',
     query
   })
-
-
   blnLoading.value = true
   arrDevelopers.value = [] //reset the obj
-
-  const {data, message, response_error} = await getFetch(`${config.public.server_url}/users/developers`,query)
+  const {data, error_response} = await fetch.get(`${config.public.server_url}/users/developers`,query)
   if(!data) {
-    blnShowNotif.value = true
-    blnLoading.value = false
-    strNotifMessage.value = message
-    blnRequestSuccess.value = false
+    fnShowNotif(error_response)
     return
   }
   arrDevelopers.value = data
   blnLoading.value = false
 }
 
+watch(strSearch,(search, prevChar) => {  // automatically fetch data when search bar is empty
+if(search === '' && prevChar !== ' ') fnFetchData()
+})
+
 onMounted(() => {
   fnFetchData()
-
 })
 
 </script>

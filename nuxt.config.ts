@@ -5,9 +5,13 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@vesp/nuxt-fontawesome', "@nuxt/image"],
   runtimeConfig : {
     public: {
-      server_url: process.env.SERVER_URL
+      server_url: process.env.SERVER_URL,
+      server_auth_url: process.env.SERVER_AUTH_URL
     }
   },
+  // devServer: {
+  //   port: 8000
+  // },
   fontawesome: {
     icons: {
       solid: [
@@ -20,7 +24,7 @@ export default defineNuxtConfig({
         'download', 'arrow-left', 
         'paper-plane', 'eye', 'eye-slash',
         'gears', 'angle-left', 'angle-right', 'angles-left', 'angles-right', 'angle-down',
-        'plus','pencil', 'user', 'list', 'clock', 'spinner', 'check','key'
+        'plus','pencil', 'user', 'list', 'clock', 'spinner', 'check','key','clipboard-user'
       ],
       regular: ['comment', 'face-smile'],
       brands: ['twitter'],

@@ -103,9 +103,23 @@ const fnShowModal = (ticket) => {
   blnShowModal.value = true
 }
 
-const fnCheckStatus = (status) => status === 'Pending' ? 'bg-red-50 text-red-500' : status === 'In-progress' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'
+// const fnCheckStatus = (status) => status === 'Pending' ? 'bg-red-50 text-red-500' : status === 'In-progress' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'
 const fnCheckPrio =  (prio) => prio === 'High' ? 'bg-red-50 text-red-500' : prio === 'Low' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'
 
+const fnCheckStatus = (status) => {
+  switch (status) {
+    case 'Pending':
+      return 'bg-red-50 text-red-500';
+    case 'In-progress':
+      return 'bg-blue-50 text-blue-500' 
+    case 'Completed':
+      return 'bg-green-50 text-green-500'
+    case 'Deleted':
+      return 'bg-red-50 text-red-500'
+    default:
+      return 'bg-orange-50 text-orange-500';
+  }
+}
 
 
 </script>

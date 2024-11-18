@@ -20,35 +20,53 @@
 
    
   
-      <div class="w-4/5 mx-auto flex flex-col gap-5 mt-10" v-if="blnSignUpForm">
+      <form @keyup.enter="fnLogin" v-if="blnSignUpForm">
+        <div class="w-4/5 mx-auto flex flex-col gap-5 mt-10" >
 
-        <div class="text-center h-36 content-center ">
-          <p class="text-xl font-bold">Sign in</p>
-        </div>
-
-        <div class="">
-          <label for="email"> Email </label>
-          <input class="w-full h-10 px-2 focus:outline-none border-b-2 focus:border-b-gray-700"  type="text" id="email" placeholder="Enter your email">
-        </div>
-  
-        <div class="">
-          <label for="password"> Password </label>
-          <div class="flex items-center border-b-2 px-2">
-            <input class="w-full h-10  focus:outline-none "  :type="blnShowPassword ? 'text' : 'password'" id="password" placeholder="Enter your password">
-            <font-awesome :icon=" blnShowPassword ? 'eye-slash' : 'eye' " class="text-md " @click="blnShowPassword = !blnShowPassword"/>
+          <div class="text-center h-36 content-center ">
+            <p class="text-xl font-bold">Sign in</p>
           </div>
+
+          <div class="">
+            <label for="email"> Email </label>
+            <input class="w-full h-10 px-2 focus:outline-none border-b-2 focus:border-b-gray-700"  type="text" id="email" placeholder="Enter your email" v-model="objLogin.email">
+          </div>
+    
+          <div class="">
+            <label for="password"> Password </label>
+            <div class="flex items-center border-b-2 px-2">
+              <input class="w-full h-10  focus:outline-none "  :type="blnShowPassword ? 'text' : 'password'" id="password" placeholder="Enter your password" v-model="objLogin.password">
+              <font-awesome :icon=" blnShowPassword ? 'eye-slash' : 'eye' " class="text-md " @click="blnShowPassword = !blnShowPassword"/>
+            </div>
+          </div>
+    
+          <p class="text-end hover:text-indigo-800 cursor-pointer">Forgot Password</p>
+    
+          <div @click="fnLogin">
+            <input type="button" value="Sign In" class="w-full h-10 px-2 bg-gray-700 rounded-xl focus:outline-blue-500 mt-1 text-white hover:bg-gray-800 font-bold" >
+          </div>
+    
+          <div class="text-center">
+            <p>Don't have an account? <span class="font-bold cursor-pointer  hover:text-indigo-800" @click="blnSignUpForm = !blnSignUpForm">Sign Up</span></p>
+            <p class="text-red-600 font-semibold text-sm">{{ strLoginError }}</p>
+          </div>
+          <div v-if="blnLoading" class="mx-auto">
+            <Loading></Loading>
+          </div>
+          <!-- <div>
+            <button @click="fnTokenTest">Token test</button>
+          </div> -->
+            <div class="flex justify-between">
+            <button @click.prevent="fnTokenTest">S3 request</button>
+            <!-- <button>Download file</button> -->
+            <!-- <a href="https://meditab-lmc-beta.s3.us-east-1.amazonaws.com/670d0199dab0664c04458e57.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASFO6H5UZHSQMUGEK%2F20241115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241115T084552Z&X-Amz-Expires=3600&X-Amz-Signature=ff4b441f1ba07830eab9388953eb0be4c25fdf7e2017769ff9000319dce030a4&X-Amz-SignedHeaders=host&x-id=GetObject" download></a> -->
+            <a :href="file" download target="_blank">Click me daddy</a>
+          </div>
+          <!-- <div>
+            <button @click="fnRefreshToken">Refresh test</button>
+          </div> -->
         </div>
-  
-        <p class="text-end hover:text-indigo-800 cursor-pointer">Forgot Password</p>
-  
-        <div>
-          <input type="button" value="Sign In" class="w-full h-10 px-2 bg-gray-700 rounded-xl focus:outline-none mt-1 text-white hover:bg-gray-800 font-bold" >
-        </div>
-  
-        <div class="text-center">
-          <p>Don't have an account? <span class="font-bold cursor-pointer  hover:text-indigo-800" @click="blnSignUpForm = !blnSignUpForm">Sign Up</span></p>
-        </div>
-      </div>
+      </form>
 
 
       <div class="w-4/5 mx-auto flex flex-col gap-3 mt-10 " v-else>
@@ -90,6 +108,18 @@
           id="lname" 
           placeholder="Enter your middle name"
           v-model="objUserDetails.last_name"
+          >
+        </div>
+        
+        <div class="">
+          <label for="lname"> Middle Name <span class="text-red-600">*</span></label>
+          <input 
+          class="w-full h-8 focus:outline-none border-b-2 focus:border-b-gray-700" 
+          :class="objUserDetailsVerified.middle_name || 'border-b-red-600'"  
+          type="text" 
+          id="lname" 
+          placeholder="Enter your middle name"
+          v-model="objUserDetails.middle_name"
           >
         </div>
 
@@ -137,24 +167,29 @@
           </div>
         </div>
 
- 
-  
       </div>
 
-
     </div>
-
-   
   </div>
 </template>
 
 <script setup>
 
 import fetch from '../api/fetch'
+import auth from '../api/auth'
+
+definePageMeta({
+  middleware: ['auth']
+})
+
+
+
 
 const config = useRuntimeConfig()
 
-const blnSignUpForm = ref(false) //set this back to true
+const inputFormat = /\w/ //Check if input value is empty
+
+const blnSignUpForm = ref(true) //set this back to true
 
 const blnShowPassword = ref(false)
 
@@ -164,20 +199,28 @@ const blnLoading = ref(false)
 
 const strSignupError = ref('')
 const strSingUpSuccess = ref('')
+const strLoginError = ref('')
+const file = ref('')
+
+const objLogin = ref({
+  email: '',
+  password: ''
+})
 
 const objUserDetails = ref({
   email: '',
   first_name: '',
   last_name: '',
+  middle_name:'',
   password: '',
   confirm_password: ''
-
 })
 
 const objUserDetailsVerified = ref({
   email: true,
   first_name: true,
   last_name: true,
+  middle_name:true,
   password: true,
   confirm_password: true
 })
@@ -185,13 +228,83 @@ const objUserDetailsVerified = ref({
 let format =  /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
 let uppercaseFormat = /[A-Z]/
 
+const fnRefreshToken = async () => {
+  try {
+
+    const refreshToken = localStorage.getItem('refreshToken')
+    const res = await $fetch(`${config.public.server_auth_url}/auth/refresh-token`,{
+      method: 'post',
+      headers: {
+       'Content-Type': 'application/json'
+      },
+      body: {refreshToken}
+    }) 
+    localStorage.setItem('accessToken', res.accessToken)
+    console.log(res)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const fnTokenTest = async () => {
+  try {
+    // console.log('fsdf')
+    // let presignedUrl = "https://meditab-lmc-beta.s3.us-east-1.amazonaws.com/670d0199dab0664c04458e57.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASFO6H5UZHSQMUGEK%2F20241115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241115T084552Z&X-Amz-Expires=3600&X-Amz-Signature=ff4b441f1ba07830eab9388953eb0be4c25fdf7e2017769ff9000319dce030a4&X-Amz-SignedHeaders=host&x-id=GetObject"
+    // if (presignedUrl) {
+    //   // Create a temporary anchor (<a>) element to trigger the download
+    //   const link = document.createElement('a');
+    //   link.href = presignedUrl;
+
+    //   // console.log('file name',presignedUrl.split('/').pop())
+    //   // Optionally, set the filename (this is optional and can be dynamic)
+    //   link.download = presignedUrl.split('/').pop(); // Use the last part of the URL as the filename
+
+    //   // Programmatically click the link to trigger the download
+    //   link.click();
+    // } else {
+    //   console.error('No presigned URL returned');
+    //     }
+
+    // const { data } = await fetch.get(`${config.public.server_auth_url}/auth/token`)
+    // console.log(data)
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+const fnLogin = async () => {
+  if(!inputFormat.test(objLogin.value.email) || !inputFormat.test(objLogin.value.password)) return strLoginError.value = 'Please input required fields.'
+  try {
+    blnLoading.value = true
+    console.log(objLogin.value)
+    const res = await $fetch(`${config.public.server_auth_url}/auth/login`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: objLogin.value
+    })
+    console.log(res)
+    auth.set({access_token: res.accessToken, isAuthenticated: true , routes: res.routes})
+    // localStorage.setItem('auth', JSON.stringify({'access_token': res.accessToken, 'isAuthenticated': 'true'}))
+    blnLoading.value = false
+
+    let routes = res.routes
+    console.log(routes.some(route => route.path === '/dashboard'))
+    if(routes.some(route => route.path === '/dashboard')) navigateTo({path: routes[0].path})
+    else navigateTo({path: routes[0].path})
+    // navigateTo({path:'/dashboard'})
+  } catch (error) {
+    if(error.status === undefined) strLoginError.value = 'Something went wrong from the request.'
+    if(error.status) strLoginError.value = error.data.message
+    blnLoading.value = false
+  }
+}
+
 const fnSignUp = async () => {
-
   const keys = Object.keys(objUserDetails.value)
-
-  console.log(objUserDetails.value)
   keys.forEach(key => {
-    objUserDetailsVerified.value[key] = objUserDetails.value[key] === '' || objUserDetails.value[key] === ' ' ?  false : true
+    objUserDetailsVerified.value[key] = !inputFormat.test(objUserDetails.value[key]) ?  false : true
   })
 
   if(objUserDetails.value.password !== objUserDetails.value.confirm_password){
@@ -217,14 +330,22 @@ const fnSignUp = async () => {
   if(keys.find( key => !objUserDetailsVerified.value[key]) !== undefined) return 
 
   try {
-    const {response, error_response} = await fetch.post(`${config.public.server_url}/users/sign-in`, objUserDetails.value)
-    console.log(error_response)
-    if(!response) return strSignupError.value = error_response
-    strSingUpSuccess.value = response
+    blnLoading.value = true
+    const res = await $fetch(`${config.public.server_auth_url}/auth/sign-in`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: objUserDetails.value
+    })
+
+    strSingUpSuccess.value = res.message
+
   } catch (error) {
     console.log(error)
     strSignupError.value = 'Something went wrong'
   } finally {
+    blnLoading.value = false
     setTimeout(() =>{
        strSignupError.value = ''
        strSingUpSuccess.value = ''
@@ -232,6 +353,9 @@ const fnSignUp = async () => {
   }
 }
 
+watch( strLoginError, (val) => {
+  setTimeout(() => strLoginError.value = '' , 3000)
+} )
 
 </script>
 
