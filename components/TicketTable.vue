@@ -41,8 +41,8 @@
             <Tooltip  :class="index === showDescription ? 'visible z-10' : 'hidden'" :text="ticket.description"></Tooltip>
           </td>
 
-          <td class="text-xs font-semibold text-center"><span class="px-2 py-1 rounded" :class="fnCheckStatus(ticket.status)">{{ ticket.status }}</span></td>
-          <td class="text-xs font-semibold text-center"><span class="px-2 py-1 rounded" :class="fnCheckPrio(ticket.priority)">{{ticket.priority}}</span></td>
+          <td class="text-xs font-semibold text-center"><span class="px-2 py-1 rounded" :class="infoFormater(ticket.status)">{{ ticket.status }}</span></td>
+          <td class="text-xs font-semibold text-center"><span class="px-2 py-1 rounded" :class="infoFormater(ticket.priority)">{{ticket.priority}}</span></td>
 
           <td class="hidden">{{ ticket.submitted_by }}</td>
           <td class="hidden truncate max-w-16">{{ ticket.description }}</td>
@@ -75,7 +75,7 @@
 
 <script setup>
 import TicketModal from  '../components/Modals/TicketModal.vue'
-
+import infoFormater from '../helpers/infoFormater.js'
 
 const props = defineProps({
   arrTickets: {
@@ -102,25 +102,6 @@ const fnShowModal = (ticket) => {
   objTicket.value = ticket
   blnShowModal.value = true
 }
-
-// const fnCheckStatus = (status) => status === 'Pending' ? 'bg-red-50 text-red-500' : status === 'In-progress' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'
-const fnCheckPrio =  (prio) => prio === 'High' ? 'bg-red-50 text-red-500' : prio === 'Low' ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'
-
-const fnCheckStatus = (status) => {
-  switch (status) {
-    case 'Pending':
-      return 'bg-red-50 text-red-500';
-    case 'In-progress':
-      return 'bg-blue-50 text-blue-500' 
-    case 'Completed':
-      return 'bg-green-50 text-green-500'
-    case 'Deleted':
-      return 'bg-red-50 text-red-500'
-    default:
-      return 'bg-orange-50 text-orange-500';
-  }
-}
-
 
 </script>
 

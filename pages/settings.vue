@@ -43,7 +43,7 @@
 
           <button class="flex items-center gap-2 border px-2 py-1 rounded-md text-white bg-indigo-950 text-xs tablet:text-sm" @click="blnToggleAddBtn = !blnToggleAddBtn">
             <font-awesome :icon="blnToggleAddBtn ? 'xmark' : 'plus'" class="text-lg "/>
-            <p>{{ blnToggleAddBtn ? 'Cancel': 'Add new' }}</p>
+            <p>{{ blnToggleAddBtn ? 'Close': 'Add new' }}</p>
           </button>
         </div>
 
@@ -98,8 +98,6 @@
                 <input class="focus:outline-none" type="text" v-model="strUpdateData" :placeholder="data.name" >
               </div>
               <div class="flex gap-2">
-                <!-- <button class="px-2 py-1 rounded-md hover:bg-red-50 text-red-600" @click="numDataKey = -1">Cancel</button>
-                <button class="px-2 py-1 rounded-md hover:bg-green-50 text-green-600">Save</button> -->
                 <button class="" @click="numDataKey = -1">
                   <font-awesome :icon="'xmark'" class="text-red-600 rounded-full p-1.5 w-5 h-5 hover:bg-red-50" />
                 </button>
@@ -110,15 +108,15 @@
             </div>
 
             <div v-else class="flex justify-between w-full h-full items-center ">
-              <p class="font-semibold">{{ data.name }}</p>
-              <div class="flex font-semibold">
+              <p class="font-semibold text-sm">{{ data.name }}</p>
+              <div class="flex gap-2 font-semibold text-sm">
                 <div class="text-center">
                   <button class="px-2 py-1 rounded-md hover:bg-blue-50 text-blue-600" @click="numDataKey = data.key">edit</button>
                 </div>
                 <div class="w-20 text-center">
                   <button 
                   class="px-2 py-1 rounded-md" 
-                  :class="data.is_active ? 'hover:bg-green-50 text-green-600': 'hover:bg-red-50 text-red-600'" @click="fnToggleActiveStatus(data.key)">{{ data.is_active ? 'active' : 'inactive' }}</button> 
+                  :class="infoFormater(data.is_active ? 'active': 'inactive')" @click="fnToggleActiveStatus(data.key)">{{ data.is_active ? 'active' : 'inactive' }}</button> 
                 </div>
               </div>
             </div>
@@ -137,6 +135,8 @@
 
 import PageHeader from '../../components/General/PageHeader.vue'
 import fetch from '../api/fetch'
+import notification from '../../helpers/notification.js'
+import infoFormater from '../helpers/infoFormater.js'
 
 definePageMeta({
   middleware: ['auth'],
@@ -146,13 +146,11 @@ definePageMeta({
 const config = useRuntimeConfig()
 
 
-const blnShowNotif = ref(false)
-const blnRequestSuccess = ref()
+
 const blnToggleAddBtn = ref(false)
 const blnLoading = ref(false)
 const blnInputError = ref(false)
 
-const strNotifMessage = ref('')
 const strCurrentFilter = ref('')
 const strApiEndPoint = ref('')
 const strNewData = ref('')
@@ -181,19 +179,14 @@ const arrActionBtns = ref([
   }
 ])
 
-const fnShowNotif = (message, success = false) => {
-  objNotif.value = {
-    show: true,
-    message,
-    success
-  }
+
+
+const fnNotif = (data) =>{
+  objNotif.value = notification(data)
   blnLoading.value = false
 }
 
-
 const fnPostData = async () => {
-
-
   let inputFormat = /\w/
 
   if(!inputFormat.test(strNewData.value) ) {
@@ -201,11 +194,10 @@ const fnPostData = async () => {
     return 
   }
 
-
   blnLoading.value = true
   const {response , error_response} = await fetch.post(`${config.public.server_url}/${strApiEndPoint.value}`, {name: strNewData.value})
   if(error_response) {
-    fnShowNotif(error_response)
+    fnNotif({message : error_response, success: false})
     return
   }
 
@@ -214,11 +206,8 @@ const fnPostData = async () => {
     key: arrData.value.length + 1,
     name: strNewData.value
   })
-  fnShowNotif(response, true)
+  fnNotif({message : response, success: true})
   strNewData.value = '' //Reset string value when added successfully
-
-
-
 }
 
 const fnToggleActiveStatus = async(key) => {
@@ -226,16 +215,15 @@ const fnToggleActiveStatus = async(key) => {
   blnLoading.value = true
   const {response , error_response} = await fetch.patch(`${config.public.server_url}/${strApiEndPoint.value}/active`,{key: key})
   if(error_response) {
-    fnShowNotif(error_response)
+    fnNotif({message : error_response, success: false})
     return
   }
-
   //Append the data to avoid  unnecessary data fetch from the backend
   arrData.value = arrData.value.map( data => {
     data.key === key && (data.is_active = !data.is_active)
     return data
   })
-  fnShowNotif(response, true)
+  fnNotif({message : response, success: true})
 }
 
 const fnUpdateData = async () => {
@@ -249,11 +237,8 @@ if(!inputFormat.test(strUpdateData.value) ) {
 
 blnLoading.value = true
 const {response , error_response} = await fetch.patch(`${config.public.server_url}/${strApiEndPoint.value}/${numDataKey.value}`, {name: strUpdateData.value})
-if(!response) {
-  blnShowNotif.value = true
-  strNotifMessage.value = error_response
-  blnRequestSuccess.value = false
-  blnLoading.value = false
+if(error_response) {
+  fnNotif({message : error_response, success: false})
   return
 }
 
@@ -264,10 +249,7 @@ arrData.value = arrData.value.map( data => {
 })
 numDataKey.value = -1
 strUpdateData.value = '' //Reset string value when updated successfully
-blnShowNotif.value = true
-strNotifMessage.value = response
-blnRequestSuccess.value = true
-blnLoading.value = false
+fnNotif({message : response, success: true})
 }
 
 const fnActiveBtn = (btnIndex = 0) => {
@@ -287,22 +269,13 @@ const fnActiveBtn = (btnIndex = 0) => {
 
 
 
-
-
 const fnFetchData = async () => {
 
   blnLoading.value = true
-  // await new Promise((resolve, reject) => {
-  //   setTimeout(() => resolve(),3000)
-  // })
   arrData.value = [] //reset value of array
   const { data, error_response } = await fetch.get(`${config.public.server_url}/${strApiEndPoint.value}`)
-  if(!data) {
-    console.log(error)
-    blnShowNotif.value = true
-    strNotifMessage.value = error_response
-    blnRequestSuccess.value = false
-    blnLoading.value = false
+  if(error_response) {
+    fnNotif({message : error_response, success: false})
     return
   }
   arrData.value = data

@@ -2,14 +2,14 @@
 
 import auth from '../api/auth'
 const errorHandler = (error) => {
-  console.log(error)
   let message
   if(error.status === 401) {
     message = error.data.message
-    localStorage.setItem('auth', JSON.stringify({access_token: '',isAuthenticated: false}))
-    navigateTo('/dashboard')
+    localStorage.setItem('auth', JSON.stringify({access_token: '',isAuthenticated: false, routes: [], user: {}}))
+    navigateTo('/dashboard') //this will navigate to /, not sure why it does go back to / after error.
   }
   if(error.status === 500)  message = error.data.message
+  if(error.status === 403)  message = error.data.message
   if(error.status === undefined)  message = "Something went wrong from the request."
   
   else return message = error.data.message
@@ -22,7 +22,6 @@ const get = async (url, queries = {}) => {
     let data
     let error_response = ''
   try {
-    console.log('get',  auth.access_token)
     data = await $fetch(`${url}?${queryString}`,{ 
       headers: {
         'Authorization' : `Bearer ${auth.get().access_token}`

@@ -61,11 +61,9 @@ const sidepanel = ref(false)
 
 const toggleMenu = ()=>{ 
   sidepanel.value = !sidepanel.value
-  console.log('event')
 }
 // onMounted(()=> {
 //   window.onresize = () =>{ 
-//     console.log(screen.width)
 //     if(screen.width > 640) sidepanel.value = true
 //     else sidepanel.value = false
 //   }

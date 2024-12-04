@@ -1,5 +1,6 @@
 <template>
-  <div class="relative w-56 h-8 tablet:h-9 border rounded-md bg-white">
+  <div class="relative w-44
+   h-7 tablet:h-8 border rounded-md bg-white text-gray-500 text-xs tablet:text-sm">
     <div class="h-full w-full flex items-center justify-between" @click="fnToggleDropdown">
       <!-- <p class="px-2 " v-for="(menu,index) in arrMenuData" v-if=" (currentFilter - 1) === index ? 'visible' : 'hidden'">{{menu.name ? menu.name : 'All'}}</p> -->
         <p  class="px-2"> {{ fnDisplayFilterName(currentFilter,arrMenuData) }} </p>
@@ -46,7 +47,6 @@ const fnToggleDropdown = () => {
 }
 
 const fnSelected = (menu,index) => {
-  console.log('fsdf', menu, index)
   strSelectedMenu.value = menu.name
   numActiveMenu.value = index
   blnShowMenu.value = false
@@ -61,13 +61,9 @@ const fnResetInput = () => {
 }
 
 const fnDisplayFilterName = (currentFilter,arr) => {
-  console.log(currentFilter, arr)
   let value = ''
   arr.forEach(a => {
-    console.log(typeof a.item_id ,typeof currentFilter)
     if( a.item_id ===   currentFilter ) {
-
-      console.log('fsdfagdsg')
       value =  a.name
     }
   })

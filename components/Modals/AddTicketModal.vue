@@ -75,18 +75,14 @@ const config = useRuntimeConfig()
 const ticket = ref({})
 
 const strCategoryName = ref('')
-const strNotifMessage = ref('')
 const blnShowDropdown = ref(false)
 const blnFullDisplay = ref(false)
-const blnShowNotif = ref(false)
-const blnRequestSuccess = ref()
 const blnDragOver = ref(false)
 
 const arrImages = ref([])
 const arrNotAllowedFiles = ref([])
 
 const onDragOver = () => blnDragOver.value = true
-
 
 const onDragLeave = () => blnDragOver.value = false
 
@@ -98,9 +94,7 @@ const arrAllowedFileTypes = ["image/jpeg", "image/png"]
 function fnuploadedFiles(files){  //Push files in array
 
   for(let i = 0; i < files.length; i++){
-    console.log(files[i])
     let uri = URL.createObjectURL(files[i])
-    console.log(uri)
 
     if(arrAllowedFileTypes.includes(files[i].type)){
       arrImages.value.push({
@@ -138,33 +132,26 @@ const fnRemoveImg = (index) => {
       return img
      }
   })
-  console.log(arrImages.value)
 }
 
 const submitTicket = async () => {
 
-  console.log(ticket.value)
   const {response, error_response} = await fetch.post(`${config.public.server_url}/tickets`,ticket.value)
   if(error_response) {
     emit('notification', {
-      showNotif: true ,
-      notifMessage: error_response,
-      requestSuccess: false
+      message: error_response,
+      success: false
     })
     emit('close-modal')
-
     return 
   }
   emit('notification', {
-    showNotif: true ,
-    notifMessage: response,
-    requestSuccess: true
+    message: response,
+    success: true
   })
   emit('close-modal')
-
+  emit('refresh')
 }
-
-
 
 onMounted(() => {
   setTimeout(() => blnFullDisplay.value = true,10)

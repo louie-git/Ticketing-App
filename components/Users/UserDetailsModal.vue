@@ -7,12 +7,16 @@
       <div class="flex flex-col gap-4">
         <p class="font-bold text-xl">User Profile</p>
         <div class="flex gap-10 p-5 border rounded-md items-center">
-          <div class="w-20 h-20 bg-red-50 rounded-full overflow-hidden">
-            <img src="~assets/images/cat1.jpg" alt="User Image" class="object-cover w-full h-full m-auto">
+          <div class="w-20 h-20 bg-gray-50 rounded-full overflow-hidden content-center border-gray-800 border-2">
+            <!-- <img src="~assets/images/cat1.jpg" alt="User Image" class="object-cover w-full h-full m-auto"> -->
+
+            <!-- no image url/source yet -->
+            <img v-if="false" src="" alt=""> 
+            <font-awesome v-else :icon="'user'" class="w-20 h-11 mx-auto" />
           </div>
         </div>
         
-        <div class="border p-5 rounded-md text-xs tablet:text-base">
+        <div class="border p-2 tablet:p-5 rounded-md text-xs tablet:text-base">
           <p class="font-bold text-lg">Personal Information</p>
   
           <div class="grid grid-cols-3 mt-4">
@@ -21,6 +25,7 @@
               <p>First Name</p>
               <p>Last Name</p>
               <p>Email</p>
+              <p>Date Created</p>
               <p>Designation</p>
               <p>Status</p>
               <div class="absolute border h-full right-2  border-gray-100"></div>
@@ -30,27 +35,12 @@
               <p>{{objUserDetails.first_name}}</p>
               <p>{{objUserDetails.last_name}}</p>
               <p>{{objUserDetails.email}}</p>
+              <p>{{ dateFormat(objUserDetails.createdAt) }}</p>
               <p v-if="!blnShowEditOpt">{{strDesignation}}</p>
               <Dropdown v-else :options="arrDesignations" :current-value="strDesignation" @update="fnSetDesignation" />
               <p v-if="!blnShowEditOpt">{{ strStatus }}</p>
               <Dropdown v-else :options="arrStatusOpt" :current-value="strStatus" @update="fnSetStatus" /> 
-              <!--  <div v-else class="relative w-36 border h-8 rounded-md tablet:w-44">
-                <div class="flex justify-between w-full items-center h-full" @click="blnShowDropdownMenu = !blnShowDropdownMenu">
-                  <div class="w-full px-2">
-                    <p>{{ strStatus }}</p>
-                  </div>
-                   <font-awesome :icon="'angle-down'" class="px-2 transition-all duration-300" :class="blnShowDropdownMenu && 'rotate-180'" />
-                </div>
-
-                 <div class="absolute w-full top-8 rounded-md overflow-hidden transition-all duration-300 border" :class="blnShowDropdownMenu ? 'block': 'hidden'">
-                    <p v-for="option in arrStatusOpt" class="px-2 py-1 hover:bg-indigo-50 bg-white" @click="fnSetStatus(option.name)">
-                      {{ option.name }}
-                    </p>
-                 </div>
-              </div> -->
-
             </div>
-  
           </div>
         </div>
       </div>
@@ -68,8 +58,6 @@
         </button>
       </div>
 
-
-
     </div>
   </Modal>
 </template>
@@ -78,6 +66,7 @@
 import Modal from '../../components/General/Modal.vue'
 import Dropdown from '../../components/General/Dropdown.vue'
 import fetch from '../../api/fetch'
+import dateFormat from '../../helpers/dateFormat'
 
 const emit = defineEmits(['close-modal','user-update'])
 const props = defineProps({
@@ -139,10 +128,6 @@ const fnCancelEdit = () => {
 }
 
 const fnUpdate = async () => {
-  console.log('dsfd', intDesignationKey.value)
-  console.log('fsdf', intStatusKey.value)
-  // return
-
   const body = {status: intStatusKey.value, designation: intDesignationKey.value}
   
   blnLoading.value = true

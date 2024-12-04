@@ -37,6 +37,8 @@ definePageMeta({
 
 import fetch from '../api/fetch'
 import DashboardCard from '../components/Dashboard/DashboardCard.vue'
+import notification from '../../helpers/notification.js'
+
 const config = useRuntimeConfig()
 
 const arrCompletedTickets = ref([])
@@ -52,13 +54,8 @@ const objNotif = ref({
   success: false
 })
 
-
-const fnShowNotif = (message) => {
-  objNotif.value = {
-    show: true,
-    message: message,
-    success: false
-  }
+const fnNotif = (data) =>{
+  objNotif.value = notification(data)
   blnLoading.value = false
 }
 
@@ -66,7 +63,7 @@ const fnFetchData = async () => {
   try {
     const {data, error_response} = await fetch.get(`${config.public.server_url}/tickets/dashboard`)
     if(error_response) {
-      fnShowNotif(error_response)
+      fnNotif({message : error_response, success: false})
       return
     }
     arrCompletedTickets.value = data.completed
@@ -104,14 +101,12 @@ const fnFetchData = async () => {
     ]
 
   } catch (error) {
-    console.log('errlr',error)
-    fnShowNotif('Error while fetching data.')
+    fnNotif({message : 'Something went wrong.', success: false})
   }
 
 }
 
 onMounted( async() => {
-  console.log('her')
   fnFetchData()
 })
 </script>

@@ -15,13 +15,17 @@
   .ticket__status {
     @apply px-2 py-3 font-bold text-slate-600
   }
+
+  .table__row__layout {
+    @apply px-4 py-3 tablet:px-6 tablet:py-4
+  }
 }
 
  
 /* width */
 ::-webkit-scrollbar {
     width: 8px;
-    height: 4px;
+    height: 8px;
     width: 4px;  
 }
  

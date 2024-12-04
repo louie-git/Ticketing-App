@@ -24,7 +24,7 @@
   
               <div class="grid grid-cols-5">
                 <p class="font-semibold col-span-2">Date: </p>
-                <p class="col-span-3">{{ stringCheck(objTicket.createdAt) }}</p>
+                <p class="col-span-3">{{ dateFormat(objTicket.createdAt) }}</p>
               </div>
   
             </div>
@@ -78,6 +78,7 @@
 
 import stringCheck from '../../helpers/checker/stringCheck'
 import Modal from '../../components/General/Modal.vue'
+import dateFormat from '../../helpers/dateFormat'
 
 const emit = defineEmits(['emitBlnShowModal'])
 const props = defineProps(['objTicket'])

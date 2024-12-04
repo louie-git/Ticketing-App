@@ -44,7 +44,46 @@
 
         </div>
       </div>
-      <TicketTable :arr-tickets="arrTickets" :bln-loading="blnLoading"></TicketTable>
+      <!-- <TicketTable :arr-tickets="arrTickets" :bln-loading="blnLoading"></TicketTable> -->
+       
+      <TableLayout>
+        <template #header>
+          <tr>
+            <th scope="col" class="px-6 py-3 whitespace-nowrap" v-for="header in arrTableHeader">
+              {{ header }}
+            </th>
+          </tr>
+        </template>
+        <template #contents>
+          <tr class="odd:bg-white  even:bg-gray-50 border-b" v-for="ticket in arrTickets">
+            <th scope="row" class="table__row__layout font-medium text-gray-900 whitespace-nowrap">
+              {{ ticket.ticket_number }}
+            </th>
+            <td class="table__row__layout whitespace-nowrap">
+              {{ ticket.submitted_by.email }}
+            </td>
+            <td class="table__row__layout">
+              {{ ticket.category }}
+            </td>
+            <td class="table__row__layout whitespace-nowrap">
+              {{  ticket.createdAt  }}
+            </td>
+            <td class="table__row__layout overflow-hidden max-w-56">
+                <p class=" line-clamp-1">{{ ticket.description }}</p>
+            </td>
+
+            <td class="table__row__layout">
+              <span class="px-2 py-1 rounded-md whitespace-nowrap" :class="infoFormater(ticket.status)">{{  ticket.status  }}</span>
+            </td>
+            <td class="table__row__layout">
+              <span class="px-2 py-1 rounded-md whitespace-nowrap" :class="infoFormater(ticket.priority)">{{  ticket.priority  }}</span>
+            </td>
+            <td class="table__row__layout">
+              <font-awesome :icon="'eye'" class="text-slate-800 cursor-pointer text-lg px-2" @click="fnShowModal(ticket)"/>
+            </td>
+          </tr>
+        </template>
+      </TableLayout>
 
       <Pagination :total-data="numTotalTickets" @set-page="fnSetPage"></Pagination>
 
@@ -61,11 +100,28 @@ definePageMeta({
 
 import { onMounted } from 'vue';
 import getFetch from '~/fetch/getFetch';
+import fetch from '../../api/fetch'
+import { status, priority } from '../../helpers/filters.js'
+import TableLayout from '../../components/General/TableLayout.vue'
+import infoFormater from '../../helpers/infoFormater.js'
+
+
+const arrTableHeader = ref([
+'TIcket ID',
+ 'Submitted By',
+ 'Category',
+ 'Date',
+ 'Description',
+ 'Status',
+ 'Priority',
+ 'View'
+])
+
+
 
 const config = useRuntimeConfig()
 const router = useRouter()
 const route = useRoute()
-console.log(router.currentRoute.value.params.id)
 
 const objDeveloper = ref({})
 const objQuery = ref({})
@@ -74,18 +130,16 @@ const blnShowNotif = ref(false)
 const blnRequestSuccess = ref()
 const blnLoading = ref(false)
 
-const arrPriorityMenu = ref([])
-const arrStatusMenu = ref([])
+const arrPriorityMenu = ref(priority)
+const arrStatusMenu = ref(status)
 const arrTickets = ref([])
 
 const strNotifMessage = ref('')
-const strPriorityFilter = ref()
-const strStatusFilter = ref()
 
 const numTotalTickets = ref(0)
 const numCurrentPage = ref(1)
 const numPageCursor = ref(0)
-const numPageLimit = ref(5)
+
 
 const fnSetStatus = (status) => {
   if(status === 'All') delete objQuery.value.status
@@ -106,7 +160,6 @@ const fnSetPriority = (priority) => {
 }
 
 const fnSetPage = (page,cursor) => {
-  console.log('dev',page,cursor)
   numCurrentPage.value = page
   numPageCursor.value = cursor
   fnFetchData()
@@ -123,34 +176,20 @@ const fnSetPageQuery = () => {
   fnFetchData()
 }
 
-//Fetch data
-const fnFetchStatus = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/status`)
-  arrStatusMenu.value = [...data]
-  console.log('status',arrStatusMenu.value)
-}
-
-const fnFetchPriorities = async() => {
-  const { data } = await getFetch(`${config.public.server_url}/priorities`)
-  arrPriorityMenu.value = [...data]
-  console.log('priority',arrPriorityMenu.value)
-
-}
-
 const fnFetchData = async() => {
 
   // route.query.page == 1  ? '' : objQuery.value.page =  numCurrentPage.value + numPageCursor.value
 
-
   objQuery.value.page =  numCurrentPage.value + numPageCursor.value
+  if( objQuery.value.page == 1 ) delete objQuery.value['page']
   navigateTo({
     path: `/developers/${router.currentRoute.value.params.id}`,
     query: objQuery.value
   })
   
   blnLoading.value = true
-  const {data , message, response_error} = await getFetch(`${config.public.server_url}/users/${router.currentRoute.value.params.id}`,objQuery.value)
-  if(!data) {
+  const {data , error_response} = await fetch.get(`${config.public.server_url}/users/${router.currentRoute.value.params.id}`,objQuery.value)
+  if(error_response) {
     blnShowNotif.value = true
     blnLoading.value = false
     strNotifMessage.value = message
@@ -167,8 +206,8 @@ const fnFetchData = async() => {
 
 onMounted( async() => {
   fnSetPageQuery()
-  await fnFetchStatus()
-  await fnFetchPriorities()
+  // await fnFetchStatus()
+  // await fnFetchPriorities()
 })
 </script>
 

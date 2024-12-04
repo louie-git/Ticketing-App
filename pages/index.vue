@@ -1,8 +1,6 @@
 <template>
   <div class="w-screen h-screen flex justify-center items-center bg-gradient-to-r from-gray-500 to-gray-900">
-    <div class="absolute left-1/2 top-0 border w-7 h-7 bg-red-600 tablet:bg-green-600 laptop:bg-yellow-600 desktop:bg-blue-700 z-50 ">
-
-    </div>
+    <div class="absolute left-1/2 top-0 border w-7 h-7 bg-red-600 tablet:bg-green-600 laptop:bg-yellow-600 desktop:bg-blue-700 z-50 "></div>
 
     <div class="
     relative
@@ -17,9 +15,6 @@
     tablet:h-[43rem]
     p-2"
     >
-
-   
-  
       <form @keyup.enter="fnLogin" v-if="blnSignUpForm">
         <div class="w-4/5 mx-auto flex flex-col gap-5 mt-10" >
 
@@ -53,18 +48,6 @@
           <div v-if="blnLoading" class="mx-auto">
             <Loading></Loading>
           </div>
-          <!-- <div>
-            <button @click="fnTokenTest">Token test</button>
-          </div> -->
-            <div class="flex justify-between">
-            <button @click.prevent="fnTokenTest">S3 request</button>
-            <!-- <button>Download file</button> -->
-            <!-- <a href="https://meditab-lmc-beta.s3.us-east-1.amazonaws.com/670d0199dab0664c04458e57.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASFO6H5UZHSQMUGEK%2F20241115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241115T084552Z&X-Amz-Expires=3600&X-Amz-Signature=ff4b441f1ba07830eab9388953eb0be4c25fdf7e2017769ff9000319dce030a4&X-Amz-SignedHeaders=host&x-id=GetObject" download></a> -->
-            <a :href="file" download target="_blank">Click me daddy</a>
-          </div>
-          <!-- <div>
-            <button @click="fnRefreshToken">Refresh test</button>
-          </div> -->
         </div>
       </form>
 
@@ -115,7 +98,6 @@
           <label for="lname"> Middle Name <span class="text-red-600">*</span></label>
           <input 
           class="w-full h-8 focus:outline-none border-b-2 focus:border-b-gray-700" 
-          :class="objUserDetailsVerified.middle_name || 'border-b-red-600'"  
           type="text" 
           id="lname" 
           placeholder="Enter your middle name"
@@ -220,7 +202,6 @@ const objUserDetailsVerified = ref({
   email: true,
   first_name: true,
   last_name: true,
-  middle_name:true,
   password: true,
   confirm_password: true
 })
@@ -246,31 +227,6 @@ const fnRefreshToken = async () => {
   }
 }
 
-const fnTokenTest = async () => {
-  try {
-    // console.log('fsdf')
-    // let presignedUrl = "https://meditab-lmc-beta.s3.us-east-1.amazonaws.com/670d0199dab0664c04458e57.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIASFO6H5UZHSQMUGEK%2F20241115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241115T084552Z&X-Amz-Expires=3600&X-Amz-Signature=ff4b441f1ba07830eab9388953eb0be4c25fdf7e2017769ff9000319dce030a4&X-Amz-SignedHeaders=host&x-id=GetObject"
-    // if (presignedUrl) {
-    //   // Create a temporary anchor (<a>) element to trigger the download
-    //   const link = document.createElement('a');
-    //   link.href = presignedUrl;
-
-    //   // console.log('file name',presignedUrl.split('/').pop())
-    //   // Optionally, set the filename (this is optional and can be dynamic)
-    //   link.download = presignedUrl.split('/').pop(); // Use the last part of the URL as the filename
-
-    //   // Programmatically click the link to trigger the download
-    //   link.click();
-    // } else {
-    //   console.error('No presigned URL returned');
-    //     }
-
-    // const { data } = await fetch.get(`${config.public.server_auth_url}/auth/token`)
-    // console.log(data)
-  } catch (error) {
-    console.log(error.message)
-  }
-}
 
 const fnLogin = async () => {
   if(!inputFormat.test(objLogin.value.email) || !inputFormat.test(objLogin.value.password)) return strLoginError.value = 'Please input required fields.'
@@ -285,7 +241,7 @@ const fnLogin = async () => {
       body: objLogin.value
     })
     console.log(res)
-    auth.set({access_token: res.accessToken, isAuthenticated: true , routes: res.routes})
+    auth.set({access_token: res.accessToken, isAuthenticated: true , routes: res.routes, user: res.user})
     // localStorage.setItem('auth', JSON.stringify({'access_token': res.accessToken, 'isAuthenticated': 'true'}))
     blnLoading.value = false
 
@@ -340,7 +296,7 @@ const fnSignUp = async () => {
     })
 
     strSingUpSuccess.value = res.message
-
+    console.log('here')
   } catch (error) {
     console.log(error)
     strSignupError.value = 'Something went wrong'

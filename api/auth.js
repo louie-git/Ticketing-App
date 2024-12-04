@@ -4,7 +4,8 @@ const set = (data) => {
   localStorage.setItem('auth', JSON.stringify({
     'access_token': data.access_token,
     'isAuthenticated': data.isAuthenticated,
-    'routes': data.routes
+    'routes': data.routes,
+    'user': data.user
   }))
   return
 }
@@ -14,8 +15,8 @@ const get = () => {
   return {
     access_token: auth ?  auth.access_token : '' ,
     isAuthenticated: auth ?  auth.isAuthenticated : false,
-    routes: auth ?  auth.routes : []
-
+    routes: auth ?  auth.routes : [],
+    user: auth ? auth.user : {},
   }
 }
 

@@ -65,13 +65,10 @@ const green = ref(0)
 // let dice3 = ref('')
 // let blue = 'blue'
 // let results = ref([])
-// // console.log(dice1.value, dice2.value, dice3.value)
-// // console.log(res1.value)
 // for(let i = 0 ; i<5 ; i++ ){
 //   dice1.value = colors.value[Math.floor(Math.random() * 6)]
 //   dice2.value = colors.value[Math.floor(Math.random() * 6)]
 //   dice3.value = colors.value[Math.floor(Math.random() * 6)]
-//   // console.log(result.value = `${dice1.value} - ${dice2.value} - ${dice3.value}`)
 //   let combination = {
 //     color1 : dice1.value,
 //     color2: dice2.value,
@@ -80,7 +77,6 @@ const green = ref(0)
 //   results.value.push(combination)
 // }
 
-// console.log('yhid',results.value)
 
 const ran = async () => {
   const {data} = await useFetch('/api/color')

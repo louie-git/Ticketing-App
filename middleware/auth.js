@@ -13,7 +13,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
   }
 
   if(!routes.some(route => route.path === to.path)) {
-    console.log("sdf")
     return navigateTo('404')
     // return createError({ statusCode: 404, statusMessage: `Page /${to.path} not exist.`})
     // throw createError({statusCode: 404, statusMessage: 'Page you are looking notasdf exist.'})

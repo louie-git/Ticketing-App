@@ -1,16 +1,30 @@
 <template>
-  <main-layout>
     <div>
       hello
-    </div>
 
-  </main-layout>
+
+    </div>
+    <Notification v-if="objNotif.show" :bln-show-notif="objNotif.show" :message="objNotif.message" :is-success="objNotif.success"  @closeNotif="()=> objNotif.show = false"></Notification>
+
 </template>
 
 <script setup>
-import { ref } from 'vue';
 
+import {useNotification}  from '../../composables/state'
 
+definePageMeta({
+  layout: 'main-layout'
+})
+
+// const objNotif = ref({
+//   show: false,
+//   message: '',
+//   success: false
+// })
+
+const objNotif = useNotification()
+
+console.log(objNotif.value)
 
 
 let value = 49

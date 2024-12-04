@@ -3,24 +3,18 @@
 
     <div class="absolute left-1/2 top-0 border w-7 h-7 bg-red-600 tablet:bg-green-600 laptop:bg-yellow-600 desktop:bg-blue-700 z-50 "></div>
     <header
-      class="w-full h-14 flex justify-between items-center px-3 shadow-sm transition-all ease-in-out duration-500 tablet:pl-64 bg-indigo-950">
+      class="w-full h-12 tablet:h-14 flex justify-between items-center px-2 shadow-sm tablet:pl-64 bg-indigo-950 fixed">
       <NuxtLink to="/" class="tablet:opacity-0">
-        <div class="flex items-center gap-x-3">
-          <!-- <img class="w-10 " src="~assets/icons/ticket.png" alt=""> -->
-          <p class="font-extrabold text-gray-50">Ticketing System</p>
-        </div>
+        <p class="font-extrabold text-gray-50 ml-10">Ticketing System</p>
       </NuxtLink>
-      <div class="tablet:hidden">
-        <font-awesome v-if="!showMenu" :icon="'bars'" class="text-2xl cursor-pointer" @click="toggleMenu()" />
-        <font-awesome v-else :icon="'xmark'" class="text-3xl cursor-pointer" @click="toggleMenu()" />
-        <!-- <img class="w-8"  v-if="!showMenu" src="~assets/icons/burger-bar.png" alt="" @click="toggleMenu()">
-        <img class="w-6 " v-else src="~assets/icons/close.png" alt="" @click="toggleMenu()"> -->
-      </div>
     </header>
 
-
     <div class="w-64 fixed top-0 px-3 pb-10 h-full border bg-white z-10 transition-all ease-in-out duration-500 
-    tablet:left-0  tablet:64 tablet:px-3" :class="showMenu ? 'left-0' : '-left-full'">
+    tablet:left-0 tablet:64 tablet:px-3" :class="showMenu ? 'left-0' : '-left-64'">
+      <font-awesome 
+      :icon="showMenu ? 'xmark': 'bars'" 
+      :class="showMenu ? '' : ''" 
+      class="text-xs cursor-pointer text-white absolute -right-10 top-2 tablet:hidden bg-indigo-950 w-5 h-5 p-1 rounded-md" @click="toggleMenu()" />
       <nav class="h-full flex flex-col justify-between w-full tablet:items-center">
         <div class="w-full">
           <NuxtLink to="/">
@@ -29,15 +23,15 @@
               <p class="font-extrabold text-slate-800 text-center text-xl">Ticketing System</p>
             </div>
           </NuxtLink>
-          <div class="flex items-center justify-between gap-1 px-2 py-2 bg-indigo-950 rounded-md mt-6">
+          <!-- <div class="flex items-center justify-between gap-1 px-2 py-2 bg-indigo-950 rounded-md mt-6"> -->
+          <div class="w-full grid grid-cols-6 bg-indigo-950 rounded-md px-2 h-20 items-center">
             <!-- <font-awesome :icon="'circle-user'" class="text-4xl rounded-full p-1 border-rose-50 border-4 bg-white"/> -->
-            <div class="h-12 w-12 border-4 border-white rounded-full">
+            <div class=" col-span-2 h-12 w-12 border-4 border-white rounded-full mx-auto">
               <img src="~assets/images/cat3.jpg" alt="" class="h-full w-full object-cover rounded-full">
             </div>
-            <div class="text-center flex flex-col gap-y-2 max-w-36 ">
-              <p class="text-white text-sm text-ellipsis font-semibold">Vincent Louie Arrabis</p>
-              <p class="text-xs text-slate-800 px-1 bg-white rounded-full">Backend Developer</p>
-
+            <div class="col-span-4 text-center flex flex-col gap-y-2 ">
+              <p class="text-white text-start text-sm text-ellipsis font-semibold overflow-hidden line-clamp-1">{{objAuthUser.first_name}} {{ objAuthUser.last_name }}</p>
+              <p class="text-xs text-slate-800 px-1 bg-white rounded-full">{{ objAuthUser.designation.name }}</p>
             </div>
           </div>
           <div class="flex flex-col gap-y-2 tablet:align-middle mt-10">
@@ -61,7 +55,7 @@
     </div>
 
     <div class="tablet:pl-64 transition-all ease-in-out duration-500">
-      <div class="p-3" >
+      <div class="p-3 pt-16" >
         <slot />
       </div>
     </div>
@@ -85,12 +79,12 @@ import auth from '../api/auth'
 import fetch from '../api/fetch'
 
 const blnShowLogoutModal = ref(false)
-
 const config = useRuntimeConfig()
 const showMenu = ref(false)
 const sidebarMenus = ref(auth.get().routes) 
 
 const router = useRouter()
+const objAuthUser = ref(auth.get().user)
 
 const objPagesIcons = {
   '/dashboard': 'house',
@@ -100,7 +94,6 @@ const objPagesIcons = {
   '/account': 'circle-user',
   '/settings': 'gears',
   '/my-tickets': 'clipboard-user',
-  
 } 
 
 sidebarMenus.value = sidebarMenus.value.map(page => {
@@ -108,8 +101,6 @@ sidebarMenus.value = sidebarMenus.value.map(page => {
   return page
 })
 
-
-console.log(sidebarMenus.value)
 
 sidebarMenus.value = sidebarMenus.value.map((menu)=> {
   const path = router.currentRoute.value.path.split('/')[1]
@@ -119,7 +110,6 @@ sidebarMenus.value = sidebarMenus.value.map((menu)=> {
 
 
 const dateTime = ref(Date())
-console.log(dateTime.value)
 
 const activeMenu = (index) => {
   sidebarMenus.value = sidebarMenus.value.map((menu, menuIndex) => {

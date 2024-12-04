@@ -6,7 +6,7 @@
     duration-500 
     flex-col 
     w-full 
-    mx-4 h-5/6  
+    mx-1 h-5/6  
     rounded-lg 
     overflow-hidden 
     tablet:w-3/4 

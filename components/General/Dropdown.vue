@@ -33,13 +33,10 @@ const props = defineProps({
 const strCurrentVal = ref(props.currentValue)
 const blnShowDropdownMenu = ref(false)
 
-
 const fnSetValue = (data) => {
   strCurrentVal.value = data.name
   blnShowDropdownMenu.value = false
-  console.log('hello',data)
   emit('update', data)
-
 }
 
 

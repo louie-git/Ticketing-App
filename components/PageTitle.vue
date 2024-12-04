@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-3 items-center  ">
-    <font-awesome :icon="'arrow-left'" class="text-2xl p-2  rounded-full hover:bg-indigo-100 transition-all duration-200" @click="() => router.go(-1)" v-if="props.retBtn"/>
-    <p class="text-2xl font-bold text-slate-800">{{ props.pageTitle }}</p>
+    <font-awesome :icon="'arrow-left'" class="text-lg p-2  rounded-full hover:bg-indigo-100 transition-all duration-200" @click="() => router.go(-1)" v-if="props.retBtn"/>
+    <p class="text-xm tablet:text-xl laptop:text-2xl font-bold text-slate-800">{{ props.pageTitle }}</p>
   </div>
 </template>
 

@@ -83,9 +83,10 @@
           </div>
           
           <div class="flex flex-wrap ">
-            <div class="flex items-center gap-2 m-1 px-2 shadow-md rounded-md justify-center py-1 hover:bg-gray-100" v-for="assignee in arrAssignedDev">
-              <div class="w-8 h-8 b ">
-                <img class="object-cover w-full h-full rounded-full"  src="~assets/images/cat1.jpg" alt="">
+            <div class="flex items-center gap-2 m-1 px-2 shadow-md rounded-md justify-center py-1 hover:bg-indigo-200 bg-indigo-100 text-slate-900" v-for="assignee in arrAssignedDev">
+              <div class="w-8 h-8 text-center">
+                <img v-if="assignee.image" class="object-cover w-full h-full rounded-full"  src="~assets/images/cat1.jpg" alt="">
+                <font-awesome v-else :icon="'user'" class="rounded-full w-3 h-3 text-sm p-2 border-indigo-950 border bg-slate-50" />
               </div>
               <div class=" leading-3  text-center">
                 <p class="text-sm ">{{ assignee.first_name }} {{ assignee.last_name }}</p>
@@ -158,7 +159,7 @@
 <script setup>
 
 definePageMeta({
-  layout: 'default1'
+  layout: 'main-layout'
 })
 
 import fetch from '../../api/fetch'
@@ -167,14 +168,10 @@ import { status, priority } from '../../helpers/filters.js'
 import { onMounted } from 'vue';
 import TicketCardSkeleton from '~/components/Loading/TicketCardSkeleton.vue';
 import ImageModal from '~/components/Modals/ImageModal.vue';
-import getFetch from '../../fetch/getFetch.js'
-import PageHeader from '../../components/General/PageHeader.vue'
-import ChatBox from '../../components/Ticket/ChatBox.vue'
-
+import notification from '../../helpers/notification.js'
 
 const router = useRouter()
 const config = useRuntimeConfig()
-
 
 const strTicketStatus = ref()
 const strTicketPriority = ref()
@@ -205,18 +202,10 @@ const objNotif = ref({
 })
 
 
-console.log(router.currentRoute.value.params.id)
-
-const fnShowNotif = (message,success = false) => {
-  objNotif.value = {
-    show: true,
-    message,
-    success
-  }
+const fnNotif = (data) =>{
+  objNotif.value = notification(data)
   blnLoading.value = false
 }
-
-
 
 const fnToggleDevNamesOpt = () => blnShowDevelopers.value = !blnShowDevelopers.value
 
@@ -227,7 +216,6 @@ const fnSetStatus = (data) => {
 } 
 
 const fnSetPriority = (data) => {
-
   intPriorityKey.value = data.item_id
   objTicket.value.priority = data.name
 }
@@ -265,9 +253,6 @@ const fnImageModal = (image) => {
 
 const fnCloseModal = () => blnToggleImageModal.value = false
 
-
-
-
 const fnUpdateTicket = async () => {
   blnEditLoading.value = true
   const {response, error_response} = await fetch.post(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`, {
@@ -275,26 +260,24 @@ const fnUpdateTicket = async () => {
     priority:  intPriorityKey.value,
     assignee: arrNewAssignedDevID.value
   })
-
   if( error_response ) {
-    fnShowNotif(error_response)
+    fnNotif({message: error_response, success:false})
     return
   }
-  fnShowNotif(response, true)
+  fnNotif({message : response, success: true})
+  blnLoading.value = false
   blnEditLoading.value = false
   blnShowEditOpt.value = false
-
 }
 
 //Fetch developers
 const fetchUserData = async () => { 
   const { data,error_response } = await fetch.get(`${config.public.server_url}/users/developers`)
   if(error_response) {
-    fnShowNotif(error_response)
+    fnNotif({message: error_response, success:false})
     return
   }
-  arrDevNames.value = data
-  console.log(data)
+  arrDevNames.value = data.developers
 }
 
 const fnFetchData = async () => {
@@ -302,21 +285,18 @@ const fnFetchData = async () => {
   blnLoading.value = true
   const {data, error_response} = await fetch.get(`${config.public.server_url}/tickets/${router.currentRoute.value.params.id}`)
   if(error_response) {
-    fnShowNotif(error_response)
+    fnNotif({message: error_response, success:false})
     return
   }
-  console.log('this is dat',data)
   objTicket.value = {...data}
   arrAssignedDev.value = [...data.assignee]
   blnLoading.value = false
   arrNewAssignedDevID.value = arrAssignedDev.value.map(dev => dev._id)
-
 }
 
 onMounted(async () => {
   await fnFetchData()
   await fetchUserData()
-
 })
 
 </script>

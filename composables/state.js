@@ -7,8 +7,6 @@ export const useAuthenticated = () => useState (() => ({
 }))
 
 
-
-
 // export function useAuthenticated () {
 //   return 
 // }

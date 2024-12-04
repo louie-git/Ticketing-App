@@ -90,15 +90,12 @@ watch(() => props.currentPage, (newVal,oldVal) => numCurrentPage.value = newVal)
 watch(() => props.pageCursor, (newVal,oldVal) => numPageCursor.value = newVal)
 
 
-console.log(numTotalData.value)
 
 const fnPaginationNext = () => {
   
-  console.log('next',numCurrentPage.value)
   let limit = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalData.value/numPageLimit.value) // CHeck if the total tickets are morethan 5. if not, assign limit based on the numTotalTicket/5.
   numPaginationLimit.value = limit  // assign the limit that is displayed in  pagination
   if ( numCurrentPage.value+1 <= limit ) {  //move the page +1
-    console.log('if',numCurrentPage.value <= limit)
     numCurrentPage.value += 1
   } 
   else {  //if page is = 5, add 1 to cursor to display 6
@@ -119,7 +116,6 @@ const fnPaginationPrev = () => {
     if((numCurrentPage.value - numPageCursor.value) != 1)
     numPageCursor.value -= 1
   }
-  console.log('prev',numCurrentPage.value)
   fnSetPage()
 }
 
@@ -133,7 +129,6 @@ const fnPaginationSkip = (value) => {
     case 'last':
       numCurrentPage.value = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? 5 : Math.ceil(numTotalData.value/numPageLimit.value)
       numPageCursor.value = Math.ceil(numTotalData.value/numPageLimit.value) > 5 ? Math.ceil(numTotalData.value/numPageLimit.value) - numPageLimit.value : 0
-      console.log(numPageCursor.value, '----', numCurrentPage.value)
       break;
   
     default:
@@ -144,20 +139,13 @@ const fnPaginationSkip = (value) => {
   fnSetPage()
 }
 
-const fnSetPage = () => {
-  console.log('hello')
-  console.log(numCurrentPage.value)
-  console.log(numPageCursor.value)
-  emit('setPage',numCurrentPage.value,numPageCursor.value)
-}
+const fnSetPage = () => emit('setPage',numCurrentPage.value,numPageCursor.value)
 
 onMounted(() => {
   if(route.query.page){
     numCurrentPage.value = route.query.page > 5 ? 5 : parseInt(route.query.page)
     numPageCursor.value = route.query.page > 5 ? parseInt(route.query.page) - 5 : 0
   } 
-
-  console.log(numCurrentPage.value,'---', numPageCursor.value)
 })
 
 </script>
