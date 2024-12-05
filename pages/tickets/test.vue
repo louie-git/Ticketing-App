@@ -10,7 +10,6 @@
 
 <script setup>
 
-import {useNotification}  from '../../composables/state'
 
 definePageMeta({
   layout: 'main-layout'
@@ -22,9 +21,6 @@ definePageMeta({
 //   success: false
 // })
 
-const objNotif = useNotification()
-
-console.log(objNotif.value)
 
 
 let value = 49
@@ -96,7 +92,6 @@ function iterate(val) {
     iterate(val)
   }
 }
-console.log(str)
 
 </script>
 
