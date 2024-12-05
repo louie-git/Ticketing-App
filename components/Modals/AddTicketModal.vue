@@ -123,7 +123,6 @@ const fnDropImg = (event) => {
 const onFileSelect = (event) => {
   const files = event.target.files
   fnuploadedFiles(files)
-
 }
 
 const fnRemoveImg = (index) => {

@@ -202,6 +202,7 @@ const objUserDetailsVerified = ref({
   email: true,
   first_name: true,
   last_name: true,
+  middle_name: true,
   password: true,
   confirm_password: true
 })

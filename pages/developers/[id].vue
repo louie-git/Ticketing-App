@@ -196,7 +196,6 @@ const fnFetchData = async() => {
     blnRequestSuccess.value = false
     return
   }
-  console.log('this is',data)
   objDeveloper.value = data.user
   arrTickets.value = [ ...data.tickets ]
   numTotalTickets.value = data.total_tickets

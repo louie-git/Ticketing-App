@@ -13,6 +13,8 @@
 
       </table>
 
+      <slot name="loading">
+      </slot>
       <slot name="no-data">
       </slot>
 

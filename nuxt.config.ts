@@ -9,9 +9,12 @@ export default defineNuxtConfig({
       server_auth_url: process.env.SERVER_AUTH_URL
     }
   },
-  // devServer: {
-  //   port: 8000
-  // },
+  app: {
+    head: {
+      title: 'Ticketing App',
+      link: [{ rel: 'icon', type: 'image/png', href: '/system.png' }]
+    },
+  },
   fontawesome: {
     icons: {
       solid: [

@@ -24,9 +24,14 @@
             </th>
           </tr>
         </template>
-        <template #no-data v-if="arrUsers.length < 1">
-        <p class="text-center mt-2">No data to show.</p>
-      </template>
+        <template #loading v-if="blnLoading">
+          <div class="w-full flex justify-center mt-4">
+            <Loading></Loading>
+          </div>
+        </template>
+        <template #no-data v-if="arrUsers.length < 1 && !blnLoading">
+          <p class="text-center mt-2">No data to show.</p>
+        </template>
         <template #contents>
           <tr class="odd:bg-white  even:bg-gray-50 border-b last:border-b-0" v-for="user in arrUsers">
             <th scope="row" class="table__row__layout font-medium text-gray-900 whitespace-nowrap">
@@ -50,15 +55,6 @@
             <td class="table__row__layout max-w-56 whitespace-nowrap">
               <font-awesome :icon="'eye'" class="text-slate-800 cursor-pointer text-lg px-2" @click="fnShowModal(user)"/>
             </td>
-            <!-- <td class="px-6 py-4">
-              <span class="px-2 py-1 rounded-md whitespace-nowrap" :class="infoFormater(ticket.status)">{{  ticket.status  }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <span class="px-2 py-1 rounded-md whitespace-nowrap" :class="infoFormater(ticket.priority)">{{  ticket.priority  }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <font-awesome :icon="'eye'" class="text-slate-800 cursor-pointer text-lg px-2" @click="fnShowModal(ticket)"/>
-            </td> -->
           </tr>
         </template>
       </TableLayout>
@@ -122,10 +118,8 @@ const arrTableHeader = ref([
 
 const config = useRuntimeConfig()
 
-console.log(`${config.public.server_url}/users`)
 
 const fnShowErrorNotif = (message) => {
-  console.log('erer')
   objNotif.value = {
     show: true,
     message,
@@ -148,7 +142,6 @@ const fnUserUpdate = (response) => {
 
 
 const fnSetPage = (page,cursor) => {
-  console.log('dev',page,cursor)
   numCurrentPage.value = page
   numPageCursor.value = cursor
   fnFetchData()

@@ -42,6 +42,14 @@
           </th>
         </tr>
       </template>
+      <template #loading v-if="blnLoading">
+        <div class="w-full flex justify-center mt-4">
+          <Loading></Loading>
+        </div>
+      </template>
+      <template #no-data v-if="arrTickets.length < 1 && !blnLoading">
+        <p class="text-center mt-2">No data to show.</p>
+      </template>
       <template #contents>
         <tr class="odd:bg-white  even:bg-gray-50 border-b" v-for="ticket in arrTickets">
           <th scope="row" class="table__row__layout font-medium text-gray-900 whitespace-nowrap">
@@ -59,7 +67,6 @@
           <td class="table__row__layout overflow-hidden max-w-56">
               <p class=" line-clamp-1">{{ ticket.description }}</p>
           </td>
-
           <td class="table__row__layout">
             <span class="px-2 py-1 rounded-md whitespace-nowrap" :class="infoFormater(ticket.status)">{{  ticket.status  }}</span>
           </td>

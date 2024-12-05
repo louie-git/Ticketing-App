@@ -21,7 +21,12 @@
           </th>
         </tr>
       </template>
-      <template #no-data v-if="arrDevelopers.length < 1">
+      <template #loading v-if="blnLoading">
+        <div class="w-full flex justify-center mt-4">
+          <Loading></Loading>
+        </div>
+      </template>
+      <template #no-data v-if="arrDevelopers.length < 1 && !blnLoading">
         <p class="text-center mt-2">No data to show.</p>
       </template>
       <template #contents>
