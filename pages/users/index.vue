@@ -29,9 +29,7 @@
             <Loading></Loading>
           </div>
         </template>
-        <!-- <template #no-data v-if="arrUsers.length < 1 && !blnLoading"> -->
-        <template #no-data v-if="true">
-
+        <template #no-data v-if="arrUsers.length < 1 && !blnLoading">
           <p class="text-center mt-2">No data to show.</p>
         </template>
         <template #contents v-else>
