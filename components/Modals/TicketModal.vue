@@ -78,7 +78,7 @@
 
 import stringCheck from '../../helpers/checker/stringCheck'
 import Modal from '../../components/General/Modal.vue'
-import dateFormat from '../../helpers/dateFormat'
+import dateFormat from '~/helpers/dateFormat.js'
 
 const emit = defineEmits(['emitBlnShowModal'])
 const props = defineProps(['objTicket'])

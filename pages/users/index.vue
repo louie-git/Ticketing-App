@@ -78,7 +78,7 @@ import PageHeader from '../../components/General/PageHeader.vue'
 import fetch from '../../api/fetch'
 import infoFormater from '../helpers/infoFormater.js'
 import TableLayout from '../../components/General/TableLayout.vue'
-import dateFormat from '~/helpers/dateFormat'
+import dateFormat from '~/helpers/dateFormat.js'
 
 definePageMeta({
   middleware: ['auth'],

@@ -2,12 +2,20 @@
   <div class="relative font-body">
 
     <div class="absolute left-1/2 top-0 border w-7 h-7 bg-red-600 tablet:bg-green-600 laptop:bg-yellow-600 desktop:bg-blue-700 z-50 "></div>
-    <header
-      class="w-full h-12 tablet:h-14 flex justify-between items-center px-2 shadow-sm tablet:pl-64 bg-indigo-950 fixed">
+    <header class="w-full h-12 tablet:h-14 flex justify-between items-center px-2 shadow-sm tablet:pl-64 bg-indigo-950 fixed z-10">
       <NuxtLink to="/" class="tablet:opacity-0">
         <p class="font-extrabold text-gray-50 ml-10">Ticketing System</p>
       </NuxtLink>
+      <div class="flex items-center mr-2 gap-2 text-white text-[0.52rem] tablet:text-[0.7rem] laptop:text-xs laptop:mr-5">
+        <font-awesome :icon="['far','calendar']" class=" text-base" />
+        <div class="laptop:flex gap-2 px-1">
+          <p class="">{{ strDate }}</p>
+          <p class="" >{{objTime.hour}} : {{ objTime.minute }} : {{ objTime.second }}  {{ objTime.period }}</p>
+        </div>
+      </div>
     </header>
+
+
 
     <div class="w-64 fixed top-0 px-3 pb-10 h-full border bg-white z-10 transition-all ease-in-out duration-500 
     tablet:left-0 tablet:64 tablet:px-3" :class="showMenu ? 'left-0' : '-left-64'">
@@ -23,11 +31,12 @@
               <p class="font-extrabold text-slate-800 text-center text-xl">Ticketing System</p>
             </div>
           </NuxtLink>
-          <!-- <div class="flex items-center justify-between gap-1 px-2 py-2 bg-indigo-950 rounded-md mt-6"> -->
           <div class="w-full grid grid-cols-6 bg-indigo-950 rounded-md px-2 h-20 items-center">
-            <!-- <font-awesome :icon="'circle-user'" class="text-4xl rounded-full p-1 border-rose-50 border-4 bg-white"/> -->
-            <div class=" col-span-2 h-12 w-12 border-4 border-white rounded-full mx-auto">
-              <img src="~assets/images/cat3.jpg" alt="" class="h-full w-full object-cover rounded-full">
+            <div class=" col-span-2 h-12 w-12 border-2 border-white rounded-full mx-auto">
+              <!-- <img src="~assets/images/cat3.jpg" alt="" class="h-full w-full object-cover rounded-full"> //This is used for users that has image uploaded--> 
+               <div class="w-full h-full flex justify-center items-center">
+                 <font-awesome icon="user" class="text-xl text-white" />
+               </div>
             </div>
             <div class="col-span-4 text-center flex flex-col gap-y-2 ">
               <p class="text-white text-start text-sm text-ellipsis font-semibold overflow-hidden line-clamp-1">{{objAuthUser.first_name}} {{ objAuthUser.last_name }}</p>
@@ -77,6 +86,7 @@
 <script setup>
 import auth from '../api/auth'
 import fetch from '../api/fetch'
+import dateFormat from '~/helpers/dateFormat'
 
 const blnShowLogoutModal = ref(false)
 const config = useRuntimeConfig()
@@ -85,6 +95,29 @@ const sidebarMenus = ref(auth.get().routes)
 
 const router = useRouter()
 const objAuthUser = ref(auth.get().user)
+
+const date = new Date()
+
+const objTime = ref({
+  hour: '00',
+  minute: '00',
+  second: '00',
+  period: '--'
+})
+
+const strDate = ref('')
+strDate.value = dateFormat(`${date.getFullYear()}-${date.getMonth() < 10 ? '0' : ''}${date.getMonth()}-${date.getDay() < 10 ? '0' : ''}${date.getDate()}`)
+
+setInterval(() => {
+  const currentTime = new Date()
+  objTime.value = {
+    // hour: `${currentTime.getHours() < 10 ? '0' : ''}${currentTime.getHours()}`,
+    hour:   currentTime.getHours() > 12 ? `${(currentTime.getHours() - 12) < 10 ? '0': ''}${currentTime.getHours() - 12}` :  currentTime.getHours(),
+    minute: `${currentTime.getMinutes() < 10 ? '0' : ''}${currentTime.getMinutes()}`,
+    second: `${currentTime.getSeconds() < 10 ? '0' : ''}${currentTime.getSeconds()}` ,
+    period: currentTime.getHours() < 12 ? 'AM' : 'PM' 
+  }
+}, 1000);
 
 const objPagesIcons = {
   '/dashboard': 'house',

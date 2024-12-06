@@ -112,7 +112,7 @@
 import stringChecker from '../helpers/checker/stringCheck.js'
 import auth from '../api/auth'
 import fetch from '../api/fetch'
-import dateFormat from '../helpers/dateFormat.js'
+import dateFormat from '~/helpers/dateFormat.js'
 
 definePageMeta({
   middleware: ['auth'],

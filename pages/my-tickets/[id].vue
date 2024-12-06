@@ -62,7 +62,7 @@
 
 import fetch from '../../api/fetch'
 import {onMounted} from 'vue'
-import dateFormat from '../../helpers/dateFormat.js'
+import dateFormat from '~/helpers/dateFormat.js'
 
 definePageMeta({
   layout: 'main-layout'

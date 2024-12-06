@@ -66,7 +66,7 @@
 import Modal from '../../components/General/Modal.vue'
 import Dropdown from '../../components/General/Dropdown.vue'
 import fetch from '../../api/fetch'
-import dateFormat from '../../helpers/dateFormat'
+import dateFormat from '~/helpers/dateFormat.js'
 
 const emit = defineEmits(['close-modal','user-update'])
 const props = defineProps({

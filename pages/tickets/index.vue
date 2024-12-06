@@ -105,7 +105,7 @@ import notification from '../../helpers/notification.js'
 import TableLayout from '../../components/General/TableLayout.vue'
 import infoFormater from '../../helpers/infoFormater.js'
 import TicketModal from  '../components/Modals/TicketModal.vue'
-import dateFormat  from '~/helpers/dateFormat';
+import dateFormat  from '~/helpers/dateFormat.js';
 
 const arrTableHeader = ref([
 'TIcket ID',

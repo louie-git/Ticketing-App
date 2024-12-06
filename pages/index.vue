@@ -260,8 +260,11 @@ const fnLogin = async () => {
 
 const fnSignUp = async () => {
   const keys = Object.keys(objUserDetails.value)
+  console.log(keys)
   keys.forEach(key => {
-    objUserDetailsVerified.value[key] = !inputFormat.test(objUserDetails.value[key]) ?  false : true
+    if(key !== 'middle_name'){ //used to avoid adding restrction on middle name.
+      objUserDetailsVerified.value[key] = !inputFormat.test(objUserDetails.value[key]) ?  false : true
+    }
   })
 
   if(objUserDetails.value.password !== objUserDetails.value.confirm_password){
