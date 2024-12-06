@@ -29,10 +29,12 @@
             <Loading></Loading>
           </div>
         </template>
-        <template #no-data v-if="arrUsers.length < 1 && !blnLoading">
+        <!-- <template #no-data v-if="arrUsers.length < 1 && !blnLoading"> -->
+        <template #no-data v-if="true">
+
           <p class="text-center mt-2">No data to show.</p>
         </template>
-        <template #contents>
+        <template #contents v-else>
           <tr class="odd:bg-white  even:bg-gray-50 border-b last:border-b-0" v-for="user in arrUsers">
             <th scope="row" class="table__row__layout font-medium text-gray-900 whitespace-nowrap">
               {{ user.last_name }}

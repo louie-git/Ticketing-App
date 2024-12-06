@@ -24,13 +24,14 @@
       :class="showMenu ? '' : ''" 
       class="text-xs cursor-pointer text-white absolute -right-10 top-2 tablet:hidden bg-indigo-950 w-5 h-5 p-1 rounded-md" @click="toggleMenu()" />
       <nav class="h-full flex flex-col justify-between w-full tablet:items-center">
-        <div class="w-full">
+        <div class="flex flex-col w-full h-full">
           <NuxtLink to="/">
             <div class="content-center h-14 text-center">
               <!-- <img class="w-10" src="~assets/icons/ticket.png" alt=""> -->
               <p class="font-extrabold text-slate-800 text-center text-xl">Ticketing System</p>
             </div>
           </NuxtLink>
+          
           <div class="w-full grid grid-cols-6 bg-indigo-950 rounded-md px-2 h-20 items-center">
             <div class=" col-span-2 h-12 w-12 border-2 border-white rounded-full mx-auto">
               <!-- <img src="~assets/images/cat3.jpg" alt="" class="h-full w-full object-cover rounded-full"> //This is used for users that has image uploaded--> 
@@ -43,7 +44,8 @@
               <p class="text-xs text-slate-800 px-1 bg-white rounded-full">{{ objAuthUser.designation.name }}</p>
             </div>
           </div>
-          <div class="flex flex-col gap-y-2 tablet:align-middle mt-10">
+
+          <div class="flex-1 flex flex-col gap-y-2 tablet:align-middle mt-5 overflow-y-auto">
             <NuxtLink :to="menu.path" v-for="(menu, index) in sidebarMenus" 
               class=" font-semibold  px-2  rounded-md duration-200 transition-all ease-in-out"
               :class="menu.isActive? 'bg-indigo-950 text-indigo-50': 'hover:bg-indigo-100'"
@@ -56,7 +58,7 @@
             </NuxtLink>
           </div>
         </div>
-        <div class="flex gap-3  rounded-md px-2 w-full py-2 shadow-lg cursor-pointer hover:bg-gray-100 transition-colors duration-300" @click="blnShowLogoutModal = true">
+        <div class="flex gap-3 rounded-md px-2 w-full py-1 my-1 shadow-lg cursor-pointer hover:bg-gray-100 transition-colors duration-300" @click="blnShowLogoutModal = true">
           <font-awesome :icon="'arrow-right-from-bracket'" class="text-xl" />
           <span>Logout</span>
         </div>
